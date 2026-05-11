@@ -25,9 +25,9 @@ Una aplicación web progresiva (PWA) construida con React y TypeScript para gest
 Para correr este proyecto en tu máquina local, sigue estos pasos:
 
 1. **Clona el repositorio:**
-   ```bash
-   git clone
-   cd TU-REPOSITORIO
+```bash
+git clone
+cd TU-REPOSITORIO
 
 ```
 
