@@ -62,5 +62,3 @@ Este proyecto está optimizado para ser desplegado fácilmente en [Vercel](https
 * `/src/components`: Componentes reutilizables de UI (Formatos de moneda, iconos, etc).
 * `/src/lib`: Lógica de negocio, base de datos local y cálculos financieros (`db.ts`, `engine.ts`).
 * `/public`: Recursos estáticos y los iconos necesarios para la PWA (`icon-192x192.png`, `icon-512x512.png`).
-
-```
