@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+Aquí tienes una propuesta de `README.md` adaptada a tu aplicación de finanzas. Puedes copiar y pegar esto directamente en tu archivo `README.md`, reemplazando todo el texto por defecto de Vite.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```markdown
+# 💰 Mi App de Finanzas
 
-Currently, two official plugins are available:
+Una aplicación web progresiva (PWA) construida con React y TypeScript para gestionar tus finanzas personales, hacer seguimiento de múltiples cuentas y controlar tus ingresos y gastos recurrentes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Características Principales
 
-## React Compiler
+* **Gestión Multicuenta:** Controla de forma separada tu dinero en Débito, Efectivo, Tarjetas de Crédito e Inversiones.
+* **Ajuste Rápido de Saldos:** Actualiza el valor real de tus cuentas en cualquier momento para mantener tus finanzas precisas.
+* **Ingresos y Gastos Fijos:** Configura transacciones recurrentes (mensuales, quincenales, etc.) para proyectar tu flujo de caja.
+* **Soporte Multi-moneda:** Cambia entre divisas (MXN, USD, EUR) según tus necesidades.
+* **Instalable en Móvil (PWA):** Úsala como una aplicación nativa en tu celular (iOS y Android) sin necesidad de descargarla de una tienda de aplicaciones.
+* **Modo Oscuro Nativo:** Interfaz moderna y elegante construida con Tailwind CSS.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tecnologías Utilizadas
 
-## Expanding the ESLint configuration
+* [React 18](https://react.dev/) - Biblioteca principal para la interfaz de usuario.
+* [TypeScript](https://www.typescriptlang.org/) - Para un código tipado y seguro.
+* [Vite](https://vitejs.dev/) - Empaquetador y entorno de desarrollo ultra rápido.
+* [Tailwind CSS](https://tailwindcss.com/) - Para los estilos y diseño responsivo.
+* [Lucide React](https://lucide.dev/) - Colección de iconos hermosos y consistentes.
+* [Vite PWA Plugin](https://vite-pwa-org.netlify.app/) - Para la funcionalidad de aplicación web progresiva.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Instalación y Desarrollo Local
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Para correr este proyecto en tu máquina local, sigue estos pasos:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clona el repositorio:**
+   ```bash
+   git clone
+   cd TU-REPOSITORIO
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. **Instala las dependencias:**
+```bash
+npm install
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+
+3. **Inicia el servidor de desarrollo:**
+```bash
+npm run dev
+
+```
+
+
+4. Abre tu navegador en `http://localhost:5173`
+
+## 📱 Despliegue e Instalación en Móvil (Vercel)
+
+Este proyecto está optimizado para ser desplegado fácilmente en [Vercel](https://vercel.com/):
+
+1. Sube tu código a GitHub.
+2. Importa el repositorio en Vercel.
+3. Vercel detectará automáticamente la configuración de Vite y hará el *build* (`npm run build`).
+4. Una vez desplegado, abre la URL generada por Vercel en el navegador de tu celular (Safari o Chrome).
+5. Selecciona la opción **"Compartir"** y luego **"Agregar a la pantalla de inicio"** para instalarla como una app nativa.
+
+## 📁 Estructura Principal
+
+* `/src/components`: Componentes reutilizables de UI (Formatos de moneda, iconos, etc).
+* `/src/lib`: Lógica de negocio, base de datos local y cálculos financieros (`db.ts`, `engine.ts`).
+* `/public`: Recursos estáticos y los iconos necesarios para la PWA (`icon-192x192.png`, `icon-512x512.png`).
+
 ```
