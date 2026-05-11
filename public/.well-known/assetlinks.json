@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.flujo_sigma.twa",
+        "sha256_cert_fingerprints": ["35:E7:6B:A7:7A:5A:51:AD:A7:B7:E5:9C:66:0F:DB:29:0A:18:0D:6E:F6:D5:C5:59:51:61:F9:72:13:E7:C6:40"]
+      }
+    }]
