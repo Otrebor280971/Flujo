@@ -1,7 +1,4 @@
-Aquí tienes una propuesta de `README.md` adaptada a tu aplicación de finanzas. Puedes copiar y pegar esto directamente en tu archivo `README.md`, reemplazando todo el texto por defecto de Vite.
-
-```markdown
-# 💰 Mi App de Finanzas
+## 💰 Mi App de Finanzas
 
 Una aplicación web progresiva (PWA) construida con React y TypeScript para gestionar tus finanzas personales, hacer seguimiento de múltiples cuentas y controlar tus ingresos y gastos recurrentes.
 
