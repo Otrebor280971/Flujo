@@ -6,7 +6,7 @@ interface Props {
   state: FinancialState | null;
   alerts: Alert[];
   currency: Currency;
-  accounts: UserAccount[]; // <-- Nueva propiedad
+  accounts: UserAccount[];
   onConfirmPending?: (item: RecurringItem) => void;
 }
 
