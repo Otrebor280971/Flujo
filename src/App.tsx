@@ -38,7 +38,13 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div
+        className="min-h-screen bg-zinc-950 flex flex-col max-w-lg mx-auto relative"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
         <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -55,9 +61,9 @@ export default function App() {
 
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-24">
         {activeTab === 'dashboard' && (
-          <Dashboard 
-            state={state} 
-            alerts={alerts} 
+          <Dashboard
+            state={state}
+            alerts={alerts}
             currency={config?.currency || 'MXN'}
             accounts={config?.userAccounts || []}
             onConfirmPending={async (item) => {
@@ -76,17 +82,17 @@ export default function App() {
             }}
           />
         )}
-        
+
         {activeTab === 'timeline' && (
-          <Timeline 
-            events={movements} 
-            currency={config?.currency || 'MXN'} 
+          <Timeline
+            events={movements}
+            currency={config?.currency || 'MXN'}
             onEdit={setEditingMovement}
             accounts={config?.userAccounts || []}
           />
         )}
-        
-        {activeTab === 'card' && <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts}/>}
+
+        {activeTab === 'card' && <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts} />}
         {activeTab === 'investment' && <InvestmentScreen state={state} config={config} currency={config?.currency || 'MXN'} />}
         {activeTab === 'settings' && <Settings config={config} onSave={updateConfig} onAdjustAccounts={() => setAdjustOpen(true)} />}
       </main>
@@ -108,9 +114,8 @@ export default function App() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex flex-col items-center py-2.5 transition-colors ${
-                  active ? 'text-emerald-400' : 'text-zinc-600 hover:text-zinc-400'
-                }`}
+                className={`flex-1 flex flex-col items-center py-2.5 transition-colors ${active ? 'text-emerald-400' : 'text-zinc-600 hover:text-zinc-400'
+                  }`}
               >
                 <Icon size={20} />
                 <span className="text-[10px] mt-0.5">{tab.label}</span>
@@ -120,14 +125,14 @@ export default function App() {
         </div>
       </nav>
 
-      <AddMovement 
-        open={addOpen} 
-        onClose={() => setAddOpen(false)} 
+      <AddMovement
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
         accounts={config?.userAccounts || []}
         onSubmit={async (m) => {
           await addMovement(m);
           refresh();
-        }} 
+        }}
       />
 
       <EditMovement
@@ -145,7 +150,7 @@ export default function App() {
           refresh();
         }}
         onDelete={async (id) => {
-          if(window.confirm('¿Seguro que quieres borrar este registro?')) {
+          if (window.confirm('¿Seguro que quieres borrar este registro?')) {
             await deleteMovement(id);
             setEditingMovement(null);
             refresh();
