@@ -12,8 +12,33 @@ interface Props {
 export default function InvestmentScreen({ state, config, currency }: Props) {
   if (!state) return null;
 
-  const freePercent = state.investment > 0 ? (state.freeInvestment / state.investment) * 100 : 100;
+  // NUEVO:
+  if (state.investment <= 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-16 px-6">
+        <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
+          <TrendingUp size={28} className="text-blue-400" />
+        </div>
+
+        <h2 className="text-lg font-semibold text-zinc-200 mb-2">
+          Sin inversiones registradas
+        </h2>
+
+        <p className="text-sm text-zinc-500 max-w-xs leading-relaxed">
+          Agrega una cuenta de tipo inversión y registra movimientos
+          para visualizar rendimiento, capital libre y proyecciones.
+        </p>
+      </div>
+    );
+  }
+
+  const freePercent =
+    state.investment > 0
+      ? (state.freeInvestment / state.investment) * 100
+      : 100;
+
   const committedPercent = 100 - freePercent;
+
   const yieldRate = config.investment_annual_yield;
 
   return (

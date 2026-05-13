@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { AppConfig, RecurringItem, Currency, UserAccount } from '../lib/db';
 import { DEFAULT_CONFIG } from '../lib/db';
 import { formatMoney } from '../components/Format';
+import { Icons } from "../components/icons";
 
 interface Props {
   config: AppConfig;
@@ -19,14 +20,13 @@ const FALLBACK_ACCOUNTS: UserAccount[] = [
 ];
 
 export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
-  const [form, setForm] = useState<AppConfig>({ 
-    ...config, 
+  const [form, setForm] = useState<AppConfig>({
+    ...config,
     recurring: [...(config.recurring || [])],
     userAccounts: [...(config.userAccounts?.length ? config.userAccounts : FALLBACK_ACCOUNTS)]
   });
   const [saved, setSaved] = useState(false);
 
-  // Sincroniza el formulario si la configuración de la base de datos se actualiza
   useEffect(() => {
     setForm({
       ...config,
@@ -53,8 +53,8 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   };
 
   const handleReset = () => {
-    setForm({ 
-      ...DEFAULT_CONFIG, 
+    setForm({
+      ...DEFAULT_CONFIG,
       recurring: [...(DEFAULT_CONFIG.recurring || [])],
       userAccounts: [...FALLBACK_ACCOUNTS]
     });
@@ -110,6 +110,17 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   const expenses = form.recurring.filter((r) => r.type === 'expense');
   const accountsList = form.userAccounts || FALLBACK_ACCOUNTS;
 
+  const CurrencyIcon = Icons.currency;
+  const InvestmentIcon = Icons.investment;
+  const AccountsIcon = Icons.accounts;
+  const IncomeIcon = Icons.fixincome;
+  const ExpenseIcon = Icons.fixexpense;
+  const SaveIcon = Icons.save;
+  const ResetIcon = Icons.reset;
+  const AddIcon = Icons.add;
+  const WalletIcon = Icons.wallet;
+
+
   return (
     <div className="space-y-4 pb-4">
       {onAdjustAccounts && (
@@ -117,14 +128,14 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           onClick={handleAdjustBalances}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500/20 to-emerald-600/5 hover:from-emerald-500/30 hover:to-emerald-600/10 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 font-medium rounded-xl py-3 transition-all"
         >
-          <span className="text-lg">⚙️</span>
+          <WalletIcon size={18} />
           Ajustar valores de cuentas
         </button>
       )}
 
       <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <span className="text-lg">💱</span>
+          <CurrencyIcon size={18} />
           Moneda
         </div>
         <div className="flex gap-2">
@@ -133,8 +144,8 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
               key={curr}
               onClick={() => update('currency', curr)}
               className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${form.currency === curr
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                 }`}
             >
               {curr}
@@ -145,32 +156,7 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
 
       <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <span className="text-lg">💳</span>
-          Tarjeta de crédito (Global)
-        </div>
-        <Field
-          label="Límite de crédito"
-          value={form.card_limit}
-          onChange={(v) => update('card_limit', v)}
-          currency={form.currency}
-        />
-        <Field
-          label="Dia de pago"
-          value={form.card_payment_day}
-          onChange={(v) => update('card_payment_day', v)}
-          max={31}
-        />
-        <Field
-          label="Dia de corte"
-          value={form.card_cutoff_day}
-          onChange={(v) => update('card_cutoff_day', v)}
-          max={31}
-        />
-      </div>
-
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <span className="text-lg">📈</span>
+          <InvestmentIcon size={18} />
           Inversión
         </div>
         <Field
@@ -185,14 +171,14 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
       <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-            <span className="text-lg">🏦</span>
+            <AccountsIcon size={18} />
             Mis Cuentas
           </div>
           <button
             onClick={addAccount}
             className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
           >
-            <span className="text-lg">➕</span>
+            <AddIcon size={18} />
             Agregar
           </button>
         </div>
@@ -210,14 +196,14 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
       <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-            <span className="text-lg">💰</span>
+            <IncomeIcon size={18} />
             Ingresos fijos
           </div>
           <button
             onClick={() => addRecurring('income')}
             className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
           >
-            <span className="text-lg">➕</span>
+            <AddIcon size={18} />
             Agregar
           </button>
         </div>
@@ -239,14 +225,14 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
       <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-            <span className="text-lg">💸</span>
+            <ExpenseIcon size={18} />
             Gastos fijos
           </div>
           <button
             onClick={() => addRecurring('expense')}
             className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300 transition-colors font-medium"
           >
-            <span className="text-lg">➕</span>
+            <AddIcon size={18} />
             Agregar
           </button>
         </div>
@@ -270,14 +256,17 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           onClick={handleSave}
           className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl py-3 transition-colors"
         >
-          <span className="text-lg">💾</span>
+          <SaveIcon size={18} />
           {saved ? 'Guardado' : 'Guardar'}
         </button>
         <button
           onClick={handleReset}
           className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-xl px-4 py-3 transition-colors"
         >
-          <span className="text-lg">Reiniciar 🔄</span>
+          <>
+            <ResetIcon size={18} />
+            Reiniciar
+          </>
         </button>
       </div>
     </div>
@@ -315,11 +304,113 @@ function AccountRow({
           <option value="credit">Crédito</option>
           <option value="investment">Inversión</option>
         </select>
+
+        {account.type === 'credit' && (
+          <div className="grid grid-cols-3 gap-3 pt-2">
+
+            {/* Límite */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-zinc-500">
+                Límite
+              </label>
+
+              <input
+                type="number"
+                placeholder="5000"
+                value={account.creditConfig?.limit || ''}
+                onChange={(e) =>
+                  onChange({
+                    creditConfig: {
+                      ...account.creditConfig,
+
+                      limit:
+                        e.target.value === ''
+                          ? undefined
+                          : parseFloat(e.target.value),
+
+                      payment_day:
+                        account.creditConfig?.payment_day,
+
+                      cutoff_day:
+                        account.creditConfig?.cutoff_day,
+                    },
+                  })
+                }
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+
+            {/* Pago */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-zinc-500">
+                Pago
+              </label>
+
+              <input
+                type="number"
+                placeholder="1"
+                value={account.creditConfig?.payment_day || ''}
+                onChange={(e) =>
+                  onChange({
+                    creditConfig: {
+                      ...account.creditConfig,
+
+                      limit:
+                        account.creditConfig?.limit,
+
+                      payment_day:
+                        e.target.value === ''
+                          ? undefined
+                          : parseInt(e.target.value),
+
+                      cutoff_day:
+                        account.creditConfig?.cutoff_day,
+                    },
+                  })
+                }
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+
+            {/* Corte */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-zinc-500">
+                Corte
+              </label>
+
+              <input
+                type="number"
+                placeholder="15"
+                value={account.creditConfig?.cutoff_day || ''}
+                onChange={(e) =>
+                  onChange({
+                    creditConfig: {
+                      ...account.creditConfig,
+
+                      limit:
+                        account.creditConfig?.limit,
+
+                      payment_day:
+                        account.creditConfig?.payment_day,
+
+                      cutoff_day:
+                        e.target.value === ''
+                          ? undefined
+                          : parseInt(e.target.value),
+                    },
+                  })
+                }
+                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+
+          </div>
+        )}
       </div>
       <button
         onClick={onRemove}
         disabled={!canRemove}
-        className={`shrink-0 font-semibold text-lg p-2 ${canRemove ? 'text-zinc-600 hover:text-red-400 transition-colors' : 'text-zinc-800 cursor-not-allowed'}`}
+        className={`shrink-0 font-semibold text-lg p-2 ${canRemove ? 'p-1 text-zinc-500 hover:text-zinc-300 transition-colors' : 'text-zinc-800 cursor-not-allowed'}`}
         title={canRemove ? 'Eliminar cuenta' : 'Debes tener al menos una cuenta'}
       >
         ✕

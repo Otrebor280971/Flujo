@@ -25,7 +25,7 @@ export default function EditMovement({ open, movement, onClose, onSave, onDelete
       <div className="bg-zinc-900 border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
           <h2 className="font-bold text-zinc-100">Editar Movimiento</h2>
-          <button onClick={onClose} className="p-1 text-zinc-500"><X size={20}/></button>
+          <button onClick={onClose} className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"><X size={20}/></button>
         </div>
 
         <div className="p-6 space-y-4">
@@ -33,7 +33,7 @@ export default function EditMovement({ open, movement, onClose, onSave, onDelete
             <label className="text-xs text-zinc-500 block mb-1">Monto</label>
             <input 
               type="number"
-              className="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-xl font-bold text-emerald-400"
+              className="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-xl font-bold text-zinc-100"
               value={formData.amount || ''}
               onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
             />

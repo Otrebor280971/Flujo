@@ -46,7 +46,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col max-w-lg mx-auto relative">
-      {/* Header */}
       <header className="sticky top-0 z-30 bg-zinc-950/90 backdrop-blur-md border-b border-white/5 px-5 pt-3 pb-2">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-bold text-zinc-100 tracking-tight">Flujo</h1>
@@ -54,7 +53,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-24">
         {activeTab === 'dashboard' && (
           <Dashboard 
@@ -88,12 +86,11 @@ export default function App() {
           />
         )}
         
-        {activeTab === 'card' && <CardScreen state={state} currency={config?.currency || 'MXN'} />}
+        {activeTab === 'card' && <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts}/>}
         {activeTab === 'investment' && <InvestmentScreen state={state} config={config} currency={config?.currency || 'MXN'} />}
         {activeTab === 'settings' && <Settings config={config} onSave={updateConfig} onAdjustAccounts={() => setAdjustOpen(true)} />}
       </main>
 
-      {/* FAB */}
       <button
         onClick={() => setAddOpen(true)}
         className="fixed bottom-20 right-4 z-40 w-14 h-14 bg-emerald-600 hover:bg-emerald-500 active:scale-95 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/30 transition-all"
@@ -102,7 +99,6 @@ export default function App() {
         <Plus size={24} className="text-white" />
       </button>
 
-      {/* Bottom Nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 bg-zinc-950/95 backdrop-blur-md border-t border-white/5">
         <div className="max-w-lg mx-auto flex">
           {tabs.map((tab) => {
@@ -124,7 +120,6 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Add Movement Modal */}
       <AddMovement 
         open={addOpen} 
         onClose={() => setAddOpen(false)} 
@@ -135,7 +130,6 @@ export default function App() {
         }} 
       />
 
-      {/* Edit Movement Modal */}
       <EditMovement
         open={!!editingMovement}
         movement={editingMovement}
@@ -145,7 +139,6 @@ export default function App() {
           if (m.id) {
             await deleteMovement(m.id);
           }
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, created_at, ...movementData } = m as any;
           await addMovement(movementData);
           setEditingMovement(null);
@@ -160,7 +153,6 @@ export default function App() {
         }}
       />
 
-      {/* Adjust Accounts Modal */}
       <AdjustAccounts
         open={adjustOpen}
         onClose={() => setAdjustOpen(false)}

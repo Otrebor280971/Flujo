@@ -11,7 +11,6 @@ interface Props {
 
 type Step = 'category' | 'account' | 'details';
 
-// Función auxiliar para mantener los íconos y colores bonitos según el tipo de cuenta
 const getAccountStyle = (type: AccountType) => {
   switch(type) {
     case 'debit': return { icon: Wallet, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' };
