@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
 
       manifest: {
-        name: 'Mi App de Finanzas',
-        short_name: 'Finanzas',
-        description: 'Control de gastos e ingresos',
+        name: 'Flujo - Control de Efectivo',
+        short_name: 'Flujo',
+        description: 'Lleva el control de tu dinero, sin conexión y con total privacidad.',
         theme_color: '#18181b',
         background_color: '#18181b',
         display: 'standalone',
