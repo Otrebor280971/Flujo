@@ -1,5 +1,4 @@
 import { formatMoney } from '../components/Format';
-
 import type {
   Movement,
   Currency,
@@ -16,6 +15,8 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
+
 interface Props {
   events: Movement[];
   currency: Currency;
@@ -29,6 +30,9 @@ export default function Timeline({
   accounts,
   onEdit,
 }: Props) {
+  const { t, i18n } =
+    useTranslation();
+
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-zinc-500">
@@ -37,7 +41,7 @@ export default function Timeline({
         </span>
 
         <p className="text-sm">
-          No hay movimientos registrados
+          {t('timeline.empty')}
         </p>
       </div>
     );
@@ -84,9 +88,17 @@ export default function Timeline({
           dateKey + 'T12:00:00'
         );
 
+        const locale =
+          i18n.language === 'en'
+            ? 'en-US'
+            : i18n.language ===
+                'es'
+              ? 'es-MX'
+              : i18n.language;
+
         const dateLabel =
           dateObj.toLocaleDateString(
-            'es-MX',
+            locale,
             {
               weekday: 'short',
               day: 'numeric',
@@ -143,6 +155,7 @@ export default function Timeline({
                 {dayTotal > 0
                   ? '+'
                   : ''}
+
                 {formatMoney(
                   dayTotal,
                   currency
@@ -225,14 +238,12 @@ export default function Timeline({
                       'bg-zinc-500/10';
 
                     amountPrefix =
-                      event.amount >=
-                      0
+                      event.amount >= 0
                         ? '+'
                         : '';
 
                     amountColor =
-                      event.amount >=
-                      0
+                      event.amount >= 0
                         ? 'text-emerald-300'
                         : 'text-red-400';
                   }
@@ -243,7 +254,9 @@ export default function Timeline({
                         a.id ===
                         event.account
                     )?.name ||
-                    'Cuenta eliminada';
+                    t(
+                      'timeline.deletedAccount'
+                    );
 
                   const destName =
                     isTransfer &&
@@ -253,7 +266,9 @@ export default function Timeline({
                             a.id ===
                             event.destination
                         )?.name ||
-                        'Cuenta eliminada'
+                        t(
+                          'timeline.deletedAccount'
+                        )
                       : null;
 
                   return (
@@ -291,8 +306,7 @@ export default function Timeline({
 
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-zinc-100 truncate">
-                              {event.note ||
-                                'Sin nota'}
+                              {event.note || t('timeline.NoNote')}
                             </p>
 
                             <p className="text-xs text-zinc-500 mt-1 truncate">

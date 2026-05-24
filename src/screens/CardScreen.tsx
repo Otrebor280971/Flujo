@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { FinancialState } from '../lib/engine';
 import type { Currency, UserAccount } from '../lib/db';
 import { formatMoney } from '../components/Format';
@@ -19,25 +20,27 @@ export default function CardScreen({
   currency,
   accounts,
 }: Props) {
+  const { t } = useTranslation();
+
   if (!state) return null;
 
   if (state.creditCards.length === 0) {
-  return (
-    <div className="rounded-2xl bg-zinc-900/70 border border-dashed border-white/10 p-8 text-center">
-      <div className="mx-auto w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4">
-        <CreditCard size={26} className="text-zinc-500" />
+    return (
+      <div className="rounded-2xl bg-zinc-900/70 border border-dashed border-white/10 p-8 text-center">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center mb-4">
+          <CreditCard size={26} className="text-zinc-500" />
+        </div>
+
+        <h2 className="text-lg font-semibold text-zinc-200 mb-2">
+          {t('cardScreen.noCards')}
+        </h2>
+
+        <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed">
+          {t('cardScreen.noCardsDesc')}
+        </p>
       </div>
-
-      <h2 className="text-lg font-semibold text-zinc-200 mb-2">
-        No hay tarjetas registradas
-      </h2>
-
-      <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed">
-        Agrega una cuenta de tipo crédito desde configuración para comenzar a monitorear límites, deuda y fechas de pago.
-      </p>
-    </div>
-  );
-}
+    );
+  }
 
   const creditAccounts = accounts.filter(
     (acc) => acc.type === 'credit'
@@ -72,13 +75,21 @@ export default function CardScreen({
 
         const today = new Date().getDate();
 
-        const paymentDay = card.creditConfig?.payment_day || 0;
+        const paymentDay =
+          card.creditConfig?.payment_day || 0;
 
-        const cutoffDay = card.creditConfig?.cutoff_day || 0;
+        const cutoffDay =
+          card.creditConfig?.cutoff_day || 0;
 
-        const daysUntilCutoff =  cutoffDay >= today ? cutoffDay - today : 30 - today + cutoffDay;
+        const daysUntilCutoff =
+          cutoffDay >= today
+            ? cutoffDay - today
+            : 30 - today + cutoffDay;
 
-        const daysUntilPayment = paymentDay >= today ? paymentDay - today : 30 - today + paymentDay;
+        const daysUntilPayment =
+          paymentDay >= today
+            ? paymentDay - today
+            : 30 - today + paymentDay;
 
         return (
           <div
@@ -107,7 +118,7 @@ export default function CardScreen({
               </p>
 
               <p className="text-xs text-zinc-500">
-                Deuda actual
+                {t('cardScreen.currentDebt')}
               </p>
             </div>
 
@@ -115,7 +126,7 @@ export default function CardScreen({
             <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-zinc-400">
-                  Uso del límite
+                  {t('cardScreen.limitUsage')}
                 </span>
 
                 <span className="text-zinc-200 font-medium">
@@ -138,7 +149,8 @@ export default function CardScreen({
 
               <div className="flex justify-between text-xs text-zinc-500">
                 <span>
-                  {formatMoney(debt, currency)} usado
+                  {formatMoney(debt, currency)}{' '}
+                  {t('dashboard.used')}
                 </span>
 
                 <span>
@@ -146,7 +158,7 @@ export default function CardScreen({
                     remaining,
                     currency
                   )}{' '}
-                  disponible
+                  {t('dashboard.available').toLowerCase()}
                 </span>
               </div>
             </div>
@@ -155,14 +167,14 @@ export default function CardScreen({
             <div className="grid grid-cols-2 gap-3">
               <DetailCard
                 icon={<CreditCard size={16} />}
-                label="Límite total"
+                label={t('cardScreen.totalLimit')}
                 value={formatMoney(limit, currency)}
                 valueColor="text-zinc-200"
               />
 
               <DetailCard
                 icon={<TrendingDown size={16} />}
-                label="Disponible"
+                label={t('cardScreen.available')}
                 value={formatMoney(
                   remaining,
                   currency
@@ -176,14 +188,14 @@ export default function CardScreen({
 
               <DetailCard
                 icon={<Calendar size={16} />}
-                label="Días para corte"
+                label={t('cardScreen.daysToCutoff')}
                 value={`${daysUntilCutoff}`}
                 valueColor="text-zinc-200"
               />
 
               <DetailCard
                 icon={<Shield size={16} />}
-                label="Días para pago"
+                label={t('cardScreen.daysToPayment')}
                 value={`${daysUntilPayment}`}
                 valueColor={
                   daysUntilPayment <= 5

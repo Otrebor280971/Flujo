@@ -1,93 +1,38 @@
 import { useState } from 'react';
-
+import { useTranslation } from 'react-i18next';
 import { useFinance } from './hooks/useFinance';
-
 import Dashboard from './screens/Dashboard';
 import Timeline from './screens/Timeline';
 import CardScreen from './screens/CardScreen';
 import InvestmentScreen from './screens/InvestmentScreen';
 import Settings from './screens/Settings';
-
 import AddMovement from './screens/AddMovement';
 import AdjustAccounts from './screens/AdjustAccounts';
 import EditMovement from './screens/EditMovement';
-
 import ScreenHeader from './components/ui/ScreenHeader';
 import BottomNav from './components/ui/BottomNav';
-
 import type { MovementCategory, Movement } from './lib/db';
+import { LayoutDashboard, Clock, CreditCard, TrendingUp, Settings as SettingsIcon, Plus } from 'lucide-react';
 
-import {
-  LayoutDashboard,
-  Clock,
-  CreditCard,
-  TrendingUp,
-  Settings as SettingsIcon,
-  Plus,
-} from 'lucide-react';
-
-type Tab =
-  | 'dashboard'
-  | 'timeline'
-  | 'card'
-  | 'investment'
-  | 'settings';
-
-const tabs: {
-  id: Tab;
-  label: string;
-  icon: React.ElementType;
-}[] = [
-  {
-    id: 'dashboard',
-    label: 'Inicio',
-    icon: LayoutDashboard,
-  },
-  {
-    id: 'timeline',
-    label: 'Historial',
-    icon: Clock,
-  },
-  {
-    id: 'card',
-    label: 'Tarjeta',
-    icon: CreditCard,
-  },
-  {
-    id: 'investment',
-    label: 'Inversión',
-    icon: TrendingUp,
-  },
-  {
-    id: 'settings',
-    label: 'Ajustes',
-    icon: SettingsIcon,
-  },
-];
+type Tab = 'dashboard' | 'timeline' | 'card' | 'investment' | 'settings';
 
 export default function App() {
-  const [activeTab, setActiveTab] =
-    useState<Tab>('dashboard');
-
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [addOpen, setAddOpen] = useState(false);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [editingMovement, setEditingMovement] = useState<Movement | null>(null);
 
-  const [adjustOpen, setAdjustOpen] =
-    useState(false);
+  const { state, alerts, movements, config, loading, addMovement, deleteMovement, updateConfig, refresh } = useFinance();
 
-  const [editingMovement, setEditingMovement] =
-    useState<Movement | null>(null);
-
-  const {
-    state,
-    alerts,
-    movements,
-    config,
-    loading,
-    addMovement,
-    deleteMovement,
-    updateConfig,
-    refresh,
-  } = useFinance();
+  // Tabs defined inside component so labels react to language changes
+  const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+    { id: 'dashboard',  label: t('nav.dashboard'),  icon: LayoutDashboard },
+    { id: 'timeline',   label: t('nav.timeline'),   icon: Clock },
+    { id: 'card',       label: t('nav.card'),       icon: CreditCard },
+    { id: 'investment', label: t('nav.investment'), icon: TrendingUp },
+    { id: 'settings',  label: t('nav.settings'),   icon: SettingsIcon },
+  ];
 
   if (loading) {
     return (
@@ -99,10 +44,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-app-bg max-w-lg mx-auto relative flex flex-col">
-      <ScreenHeader
-        title="Flujo"
-        subtitle="Control de efectivo"
-      />
+      <ScreenHeader title={t('app.title')} subtitle={t('app.subtitle')} />
 
       <main className="flex-1 overflow-y-auto screen-container">
         {activeTab === 'dashboard' && (
@@ -114,14 +56,9 @@ export default function App() {
             config={config}
             onConfirmPending={async (item) => {
               const today = new Date();
-
-              const localDate = new Date(
-                today.getTime() -
-                  today.getTimezoneOffset() * 60000
-              )
+              const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
                 .toISOString()
                 .split('T')[0];
-
               await addMovement({
                 category: item.type as MovementCategory,
                 account: item.account,
@@ -130,7 +67,6 @@ export default function App() {
                 note: item.label,
                 date: localDate,
               });
-
               refresh();
             }}
           />
@@ -146,64 +82,27 @@ export default function App() {
         )}
 
         {activeTab === 'card' && (
-          <CardScreen
-            state={state}
-            currency={config?.currency || 'MXN'}
-            accounts={config.userAccounts}
-          />
+          <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts} />
         )}
 
         {activeTab === 'investment' && (
-          <InvestmentScreen
-            state={state}
-            config={config}
-            currency={config?.currency || 'MXN'}
-          />
+          <InvestmentScreen state={state} config={config} currency={config?.currency || 'MXN'} />
         )}
 
         {activeTab === 'settings' && (
-          <Settings
-            config={config}
-            onSave={updateConfig}
-            onAdjustAccounts={() =>
-              setAdjustOpen(true)
-            }
-          />
+          <Settings config={config} onSave={updateConfig} onAdjustAccounts={() => setAdjustOpen(true)} />
         )}
       </main>
 
       <button
         onClick={() => setAddOpen(true)}
-        className="
-          fixed
-          bottom-20
-          right-4
-          z-40
-          w-14
-          h-14
-          rounded-full
-          flex
-          items-center
-          justify-center
-          bg-cyan-300
-          text-black
-          shadow-[0_8px_30px_rgba(103,232,249,0.25)]
-          active:scale-95
-          transition-all
-        "
-        style={{
-          right:
-            'max(1rem, calc((100vw - 32rem) / 2 + 1rem))',
-        }}
+        className="fixed bottom-20 z-40 w-14 h-14 rounded-full flex items-center justify-center bg-cyan-300 text-black shadow-[0_8px_30px_rgba(103,232,249,0.25)] active:scale-95 transition-all"
+        style={{ right: 'max(1rem, calc((100vw - 32rem) / 2 + 1rem))' }}
       >
         <Plus size={24} />
       </button>
 
-      <BottomNav
-        tabs={tabs}
-        activeTab={activeTab}
-        onChange={setActiveTab}
-      />
+      <BottomNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
       <AddMovement
         open={addOpen}
@@ -218,37 +117,19 @@ export default function App() {
       <EditMovement
         open={!!editingMovement}
         movement={editingMovement}
-        onClose={() =>
-          setEditingMovement(null)
-        }
+        onClose={() => setEditingMovement(null)}
         accounts={config?.userAccounts || []}
         onSave={async (m) => {
-          if (m.id) {
-            await deleteMovement(m.id);
-          }
-
-          const {
-            id,
-            created_at,
-            ...movementData
-          } = m as any;
-
+          if (m.id) await deleteMovement(m.id);
+          const { id, created_at, ...movementData } = m as any;
           await addMovement(movementData);
-
           setEditingMovement(null);
-
           refresh();
         }}
         onDelete={async (id) => {
-          if (
-            window.confirm(
-              '¿Seguro que quieres borrar este registro?'
-            )
-          ) {
+          if (window.confirm(t('editMovement.confirmDelete'))) {
             await deleteMovement(id);
-
             setEditingMovement(null);
-
             refresh();
           }
         }}
