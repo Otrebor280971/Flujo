@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.Otrebor050607.flujocontrolefectivo"
+    namespace = "com.Otrebor050607.flujocontrolgastos"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.Otrebor050607.flujocontrolefectivo"
+        applicationId "com.Otrebor050607.flujocontrolgastos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
