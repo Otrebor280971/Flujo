@@ -7,11 +7,14 @@ export function formatMoney(amount: number, currency: Currency = 'MXN'): string 
     EUR: 'EUR',
   };
 
+  // Show decimals only when the amount has meaningful cents
+  const hasDecimals = Math.abs(amount) % 1 >= 0.005;
+
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
     currency: currencyMap[currency],
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 

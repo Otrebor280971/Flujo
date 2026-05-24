@@ -7,11 +7,27 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    background: #0B0F14;
+  }
+
   body {
-    @apply bg-zinc-950 text-zinc-100 antialiased;
+    @apply bg-app-bg text-zinc-100 antialiased;
     overscroll-behavior: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
   }
 
   input[type='number']::-webkit-inner-spin-button,
@@ -27,6 +43,45 @@
   input[type='date']::-webkit-calendar-picker-indicator {
     filter: invert(1);
   }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-app-surface border border-app-border rounded-2xl;
+  }
+
+  .card-elevated {
+    @apply bg-app-elevated border border-app-border rounded-2xl shadow-soft;
+  }
+
+  .card-highlight {
+    @apply rounded-3xl border border-cyan-500/10 bg-gradient-to-br from-cyan-500/15 via-cyan-400/5 to-transparent shadow-glow;
+  }
+
+  .text-muted {
+    @apply text-zinc-400;
+  }
+
+  .text-subtle {
+    @apply text-zinc-500;
+  }
+
+  .screen-container {
+    @apply px-4 pt-4 pb-28;
+  }
+
+  .section-title {
+    @apply text-xs uppercase tracking-[0.18em] text-zinc-500;
+  }
 }
 
 @layer utilities {
@@ -40,6 +95,7 @@
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

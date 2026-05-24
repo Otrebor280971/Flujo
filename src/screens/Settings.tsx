@@ -3,6 +3,7 @@ import type { AppConfig, RecurringItem, Currency, UserAccount } from '../lib/db'
 import { DEFAULT_CONFIG } from '../lib/db';
 import { formatMoney } from '../components/Format';
 import { Icons } from "../components/icons";
+import { ArrowUpRight } from 'lucide-react';
 
 interface Props {
   config: AppConfig;
@@ -23,7 +24,9 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   const [form, setForm] = useState<AppConfig>({
     ...config,
     recurring: [...(config.recurring || [])],
-    userAccounts: [...(config.userAccounts?.length ? config.userAccounts : FALLBACK_ACCOUNTS)]
+    userAccounts: [...(config.userAccounts?.length ? config.userAccounts : FALLBACK_ACCOUNTS)],
+    investment_monthly_goal: config.investment_monthly_goal ?? 0,
+    debit_max_balance: config.debit_max_balance ?? 0,
   });
   const [saved, setSaved] = useState(false);
 
@@ -31,7 +34,9 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
     setForm({
       ...config,
       recurring: [...(config.recurring || [])],
-      userAccounts: [...(config.userAccounts?.length ? config.userAccounts : FALLBACK_ACCOUNTS)]
+      userAccounts: [...(config.userAccounts?.length ? config.userAccounts : FALLBACK_ACCOUNTS)],
+      investment_monthly_goal: config.investment_monthly_goal ?? 0,
+      debit_max_balance: config.debit_max_balance ?? 0,
     });
   }, [config]);
 
@@ -46,7 +51,6 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  // Guardamos automáticamente antes de abrir el modal de saldos
   const handleAdjustBalances = () => {
     onSave(form);
     if (onAdjustAccounts) onAdjustAccounts();
@@ -56,25 +60,20 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
     setForm({
       ...DEFAULT_CONFIG,
       recurring: [...(DEFAULT_CONFIG.recurring || [])],
-      userAccounts: [...FALLBACK_ACCOUNTS]
+      userAccounts: [...FALLBACK_ACCOUNTS],
+      investment_monthly_goal: 0,
+      debit_max_balance: 0,
     });
     setSaved(false);
   };
 
   const addAccount = () => {
-    const newAccount: UserAccount = {
-      id: crypto.randomUUID(),
-      name: 'Nueva Cuenta',
-      type: 'debit',
-    };
+    const newAccount: UserAccount = { id: crypto.randomUUID(), name: 'Nueva Cuenta', type: 'debit' };
     update('userAccounts', [...(form.userAccounts || []), newAccount]);
   };
 
   const updateAccount = (id: string, changes: Partial<UserAccount>) => {
-    update(
-      'userAccounts',
-      form.userAccounts.map((acc) => (acc.id === id ? { ...acc, ...changes } : acc))
-    );
+    update('userAccounts', form.userAccounts.map((acc) => (acc.id === id ? { ...acc, ...changes } : acc)));
   };
 
   const removeAccount = (id: string) => {
@@ -96,10 +95,7 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   };
 
   const updateRecurring = (id: string, changes: Partial<RecurringItem>) => {
-    update(
-      'recurring',
-      form.recurring.map((r) => (r.id === id ? { ...r, ...changes } : r))
-    );
+    update('recurring', form.recurring.map((r) => (r.id === id ? { ...r, ...changes } : r)));
   };
 
   const removeRecurring = (id: string) => {
@@ -120,7 +116,6 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   const AddIcon = Icons.add;
   const WalletIcon = Icons.wallet;
 
-
   return (
     <div className="space-y-4 pb-4">
       {onAdjustAccounts && (
@@ -129,11 +124,12 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500/20 to-emerald-600/5 hover:from-emerald-500/30 hover:to-emerald-600/10 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300 font-medium rounded-xl py-3 transition-all"
         >
           <WalletIcon size={18} />
-          Ajustar valores de cuentas
+          Ajustar saldos de cuentas
         </button>
       )}
 
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-4">
+      {/* Moneda */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
           <CurrencyIcon size={18} />
           Moneda
@@ -143,10 +139,9 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
             <button
               key={curr}
               onClick={() => update('currency', curr)}
-              className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${form.currency === curr
-                ? 'bg-emerald-600 text-white'
-                : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                }`}
+              className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${
+                form.currency === curr ? 'bg-emerald-600 text-white' : 'bg-app-surface text-zinc-300 hover:bg-app-elevated'
+              }`}
             >
               {curr}
             </button>
@@ -154,7 +149,8 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-4">
+      {/* Inversión */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-4">
         <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
           <InvestmentIcon size={18} />
           Inversión
@@ -166,9 +162,34 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           max={100}
           step={0.1}
         />
+        <Field
+          label="Meta de inversión mensual"
+          value={form.investment_monthly_goal}
+          onChange={(v) => update('investment_monthly_goal', v)}
+          currency={form.currency}
+          step={100}
+          hint="Cuánto quieres enviar a tu fondo cada mes"
+        />
       </div>
 
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
+      {/* Regla de excedente en débito */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+          <ArrowUpRight size={18} className="text-amber-400" />
+          Regla de excedente
+        </div>
+        <Field
+          label="Saldo máximo en débito"
+          value={form.debit_max_balance}
+          onChange={(v) => update('debit_max_balance', v)}
+          currency={form.currency}
+          step={100}
+          hint="Si tu débito supera este monto, te avisaremos que muevas el excedente a inversión. Déjalo en 0 para desactivar."
+        />
+      </div>
+
+      {/* Cuentas */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
             <AccountsIcon size={18} />
@@ -193,7 +214,8 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
         ))}
       </div>
 
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
+      {/* Ingresos fijos */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
             <IncomeIcon size={18} />
@@ -218,11 +240,12 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           />
         ))}
         {incomes.length === 0 && (
-          <p className="text-xs text-zinc-600 text-center py-2">Sin ingresos fijos</p>
+          <p className="text-xs text-subtle text-center py-2">Sin ingresos fijos</p>
         )}
       </div>
 
-      <div className="rounded-2xl bg-zinc-900/80 border border-white/5 p-4 space-y-3">
+      {/* Gastos fijos */}
+      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
             <ExpenseIcon size={18} />
@@ -247,7 +270,7 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           />
         ))}
         {expenses.length === 0 && (
-          <p className="text-xs text-zinc-600 text-center py-2">Sin gastos fijos</p>
+          <p className="text-xs text-subtle text-center py-2">Sin gastos fijos</p>
         )}
       </div>
 
@@ -257,47 +280,40 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
           className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl py-3 transition-colors"
         >
           <SaveIcon size={18} />
-          {saved ? 'Guardado' : 'Guardar'}
+          {saved ? '¡Guardado!' : 'Guardar'}
         </button>
         <button
           onClick={handleReset}
-          className="flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium rounded-xl px-4 py-3 transition-colors"
+          className="flex items-center justify-center gap-2 bg-app-surface hover:bg-app-elevated text-zinc-300 font-medium rounded-xl px-4 py-3 transition-colors"
         >
-          <>
-            <ResetIcon size={18} />
-            Reiniciar
-          </>
+          <ResetIcon size={18} />
+          Reiniciar
         </button>
       </div>
     </div>
   );
 }
 
-function AccountRow({
-  account,
-  onChange,
-  onRemove,
-  canRemove
-}: {
+function AccountRow({ account, onChange, onRemove, canRemove }: {
   account: UserAccount;
   onChange: (changes: Partial<UserAccount>) => void;
   onRemove: () => void;
   canRemove: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 bg-zinc-800/50 rounded-xl p-3">
+    <div className="flex items-center gap-2 bg-app-surface/80 rounded-xl p-3">
       <div className="flex-1 space-y-2">
         <input
           type="text"
           value={account.name}
           onChange={(e) => onChange({ name: e.target.value })}
           placeholder="Ej. BBVA, Efectivo Cartera..."
-          className="w-full bg-transparent text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none border-b border-zinc-700 pb-1"
+          className="w-full bg-transparent text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none border-b border-app-border pb-1"
         />
         <select
           value={account.type}
           onChange={(e) => onChange({ type: e.target.value as UserAccount['type'] })}
-          className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500/50"
+          className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500/50"
         >
           <option value="debit">Débito</option>
           <option value="cash">Efectivo</option>
@@ -307,111 +323,64 @@ function AccountRow({
 
         {account.type === 'credit' && (
           <div className="grid grid-cols-3 gap-3 pt-2">
-
-            {/* Límite */}
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-zinc-500">
-                Límite
-              </label>
-
+              <label className="text-[11px] text-subtle">Límite</label>
               <input
                 type="number"
                 placeholder="5000"
                 value={account.creditConfig?.limit || ''}
-                onChange={(e) =>
-                  onChange({
-                    creditConfig: {
-                      ...account.creditConfig,
-
-                      limit:
-                        e.target.value === ''
-                          ? undefined
-                          : parseFloat(e.target.value),
-
-                      payment_day:
-                        account.creditConfig?.payment_day,
-
-                      cutoff_day:
-                        account.creditConfig?.cutoff_day,
-                    },
-                  })
-                }
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                onChange={(e) => onChange({
+                  creditConfig: {
+                    ...account.creditConfig,
+                    limit: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                    payment_day: account.creditConfig?.payment_day,
+                    cutoff_day: account.creditConfig?.cutoff_day,
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-subtle placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
               />
             </div>
-
-            {/* Pago */}
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-zinc-500">
-                Pago
-              </label>
-
+              <label className="text-[11px] text-subtle">Día pago</label>
               <input
                 type="number"
                 placeholder="1"
                 value={account.creditConfig?.payment_day || ''}
-                onChange={(e) =>
-                  onChange({
-                    creditConfig: {
-                      ...account.creditConfig,
-
-                      limit:
-                        account.creditConfig?.limit,
-
-                      payment_day:
-                        e.target.value === ''
-                          ? undefined
-                          : parseInt(e.target.value),
-
-                      cutoff_day:
-                        account.creditConfig?.cutoff_day,
-                    },
-                  })
-                }
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                onChange={(e) => onChange({
+                  creditConfig: {
+                    ...account.creditConfig,
+                    limit: account.creditConfig?.limit,
+                    payment_day: e.target.value === '' ? undefined : parseInt(e.target.value),
+                    cutoff_day: account.creditConfig?.cutoff_day,
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-subtle placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
               />
             </div>
-
-            {/* Corte */}
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-zinc-500">
-                Corte
-              </label>
-
+              <label className="text-[11px] text-subtle">Día corte</label>
               <input
                 type="number"
                 placeholder="15"
                 value={account.creditConfig?.cutoff_day || ''}
-                onChange={(e) =>
-                  onChange({
-                    creditConfig: {
-                      ...account.creditConfig,
-
-                      limit:
-                        account.creditConfig?.limit,
-
-                      payment_day:
-                        account.creditConfig?.payment_day,
-
-                      cutoff_day:
-                        e.target.value === ''
-                          ? undefined
-                          : parseInt(e.target.value),
-                    },
-                  })
-                }
-                className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+                onChange={(e) => onChange({
+                  creditConfig: {
+                    ...account.creditConfig,
+                    limit: account.creditConfig?.limit,
+                    payment_day: account.creditConfig?.payment_day,
+                    cutoff_day: e.target.value === '' ? undefined : parseInt(e.target.value),
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-subtle placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
               />
             </div>
-
           </div>
         )}
       </div>
       <button
         onClick={onRemove}
         disabled={!canRemove}
-        className={`shrink-0 font-semibold text-lg p-2 ${canRemove ? 'p-1 text-zinc-500 hover:text-zinc-300 transition-colors' : 'text-zinc-800 cursor-not-allowed'}`}
-        title={canRemove ? 'Eliminar cuenta' : 'Debes tener al menos una cuenta'}
+        className={`shrink-0 font-semibold text-lg p-2 ${canRemove ? 'text-subtle hover:text-subtle transition-colors' : 'text-subtle cursor-not-allowed'}`}
       >
         ✕
       </button>
@@ -419,12 +388,7 @@ function AccountRow({
   );
 }
 
-function RecurringRow({
-  item,
-  onChange,
-  onRemove,
-  accountsList,
-}: {
+function RecurringRow({ item, onChange, onRemove, accountsList }: {
   item: RecurringItem;
   onChange: (changes: Partial<RecurringItem>) => void;
   onRemove: () => void;
@@ -432,57 +396,47 @@ function RecurringRow({
   accountsList: UserAccount[];
 }) {
   return (
-    <div className="space-y-2 bg-zinc-800/50 rounded-xl p-3">
+    <div className="space-y-2 bg-app-surface/80 rounded-xl p-3">
       <div className="flex items-center gap-2">
         <input
           type="text"
           value={item.label}
           onChange={(e) => onChange({ label: e.target.value })}
           placeholder="Nombre"
-          className="flex-1 min-w-0 bg-transparent text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none border-b border-zinc-700 pb-1"
+          className="flex-1 min-w-0 bg-transparent text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none border-b border-app-border pb-1"
         />
-        <button
-          onClick={onRemove}
-          className="text-zinc-600 hover:text-red-400 transition-colors font-semibold text-lg shrink-0"
-        >
-          ✕
-        </button>
+        <button onClick={onRemove} className="text-subtle hover:text-red-400 transition-colors font-semibold text-lg shrink-0">✕</button>
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="text-xs text-zinc-500 block mb-1">Día</label>
+          <label className="text-xs text-subtle block mb-1">Día</label>
           <input
             type="number"
             value={item.day || ''}
             onChange={(e) => onChange({ day: parseInt(e.target.value) || 0 })}
-            min={1}
-            max={31}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 text-center focus:outline-none focus:border-emerald-500/50"
+            min={1} max={31}
+            className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 text-center focus:outline-none focus:border-emerald-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-zinc-500 block mb-1">Cantidad</label>
+          <label className="text-xs text-subtle block mb-1">Cantidad</label>
           <input
             type="number"
             value={item.amount || ''}
             onChange={(e) => onChange({ amount: parseFloat(e.target.value) || 0 })}
-            min={0}
-            step={0.01}
-            placeholder="$0"
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 text-right focus:outline-none focus:border-emerald-500/50"
+            min={0} step={0.01} placeholder="$0"
+            className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 text-right focus:outline-none focus:border-emerald-500/50"
           />
         </div>
         <div>
-          <label className="text-xs text-zinc-500 block mb-1">Cuenta</label>
+          <label className="text-xs text-subtle block mb-1">Cuenta</label>
           <select
             value={item.account}
             onChange={(e) => onChange({ account: e.target.value })}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500/50"
+            className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500/50"
           >
             {accountsList.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.name}
-              </option>
+              <option key={acc.id} value={acc.id}>{acc.name}</option>
             ))}
           </select>
         </div>
@@ -491,33 +445,31 @@ function RecurringRow({
   );
 }
 
-function Field({
-  label,
-  value,
-  onChange,
-  max,
-  step,
-  currency,
-}: {
+function Field({ label, value, onChange, max, step, currency, hint }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   max?: number;
   step?: number;
   currency?: Currency;
+  hint?: string;
 }) {
   return (
     <div>
-      <label className="text-xs text-zinc-500 mb-1 block">{label}</label>
+      <label className="text-xs text-subtle mb-1 block">{label}</label>
       <input
         type="number"
-        value={value}
+        value={value || ''}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
         max={max}
         step={step}
-        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50"
+        placeholder="0"
+        className="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
       />
-      {currency && <p className="text-xs text-zinc-600 mt-1">{formatMoney(value, currency)}</p>}
+      {currency && value > 0 && (
+        <p className="text-xs text-subtle mt-1">{formatMoney(value, currency)}</p>
+      )}
+      {hint && <p className="text-xs text-subtle mt-1">{hint}</p>}
     </div>
   );
 }

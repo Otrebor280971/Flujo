@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { Movement, UserAccount } from '../lib/db';
-import { X, Save, Trash2 } from 'lucide-react';
+import type { Movement, UserAccount, MovementCategory } from '../lib/db';
+import { X, Save, Trash2, ArrowDownLeft, ArrowUpRight, ArrowRightLeft } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -11,60 +11,165 @@ interface Props {
   accounts: UserAccount[];
 }
 
+const CATEGORIES: { value: MovementCategory; label: string; icon: React.ElementType; color: string }[] = [
+  { value: 'income', label: 'Ingreso', icon: ArrowDownLeft, color: 'text-emerald-400' },
+  { value: 'expense', label: 'Gasto', icon: ArrowUpRight, color: 'text-red-400' },
+  { value: 'transfer', label: 'Transferencia', icon: ArrowRightLeft, color: 'text-blue-400' },
+];
+
 export default function EditMovement({ open, movement, onClose, onSave, onDelete, accounts }: Props) {
   const [formData, setFormData] = useState<Partial<Movement>>({});
 
   useEffect(() => {
-    if (movement) setFormData(movement);
+    if (movement) {
+      setFormData({ ...movement });
+    }
   }, [movement]);
 
   if (!open || !movement) return null;
 
+  const update = <K extends keyof Movement>(key: K, value: Movement[K]) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = () => {
+    if (!formData.amount || Number(formData.amount) <= 0) return;
+    onSave({
+      ...movement,
+      ...formData,
+      amount: Number(formData.amount),
+    } as Movement);
+  };
+
+  const isTransfer = formData.category === 'transfer';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
-      <div className="bg-zinc-900 border border-white/10 w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
-        <div className="p-4 border-b border-white/5 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-app-bg/80 backdrop-blur-sm">
+      <div className="bg-app-surface border border-app-border w-full max-w-md rounded-2xl overflow-hidden shadow-2xl">
+        <div className="p-4 border-b border-app-border flex items-center justify-between">
           <h2 className="font-bold text-zinc-100">Editar Movimiento</h2>
-          <button onClick={onClose} className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"><X size={20}/></button>
+          <button onClick={onClose} className="p-1 text-subtle hover:text-zinc-300 transition-colors">
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          {/* Category */}
           <div>
-            <label className="text-xs text-zinc-500 block mb-1">Monto</label>
-            <input 
+            <label className="text-xs text-subtle block mb-2">Tipo</label>
+            <div className="flex gap-2">
+              {CATEGORIES.map(({ value, label, icon: Icon, color }) => (
+                <button
+                  key={value}
+                  onClick={() => update('category', value)}
+                  className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl border text-xs font-medium transition-all ${
+                    formData.category === value
+                      ? 'bg-app-elevated border-app-border'
+                      : 'border-app-border bg-app-bg/50 text-subtle hover:text-zinc-400'
+                  }`}
+                >
+                  <Icon size={16} className={formData.category === value ? color : ''} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div>
+            <label className="text-xs text-subtle block mb-1">Monto</label>
+            <input
               type="number"
-              className="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-xl font-bold text-zinc-100"
-              value={formData.amount || ''}
-              onChange={e => setFormData({...formData, amount: Number(e.target.value)})}
+              inputMode="decimal"
+              step="0.01"
+              min="0"
+              className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-xl font-bold text-zinc-100 focus:outline-none focus:border-emerald-500/50"
+              value={formData.amount ?? ''}
+              onChange={(e) => update('amount', parseFloat(e.target.value) || 0)}
             />
           </div>
 
+          {/* Note */}
           <div>
-            <label className="text-xs text-zinc-500 block mb-1">Cuenta</label>
-            <select 
-              className="w-full bg-zinc-800 border border-white/10 rounded-xl px-4 py-3 text-zinc-200"
-              value={formData.account || ''}
-              onChange={e => setFormData({...formData, account: e.target.value})}
+            <label className="text-xs text-subtle block mb-1">Nota</label>
+            <input
+              type="text"
+              className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-2.5 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-emerald-500/50"
+              value={formData.note ?? ''}
+              onChange={(e) => update('note', e.target.value)}
+              placeholder="Ej: Supermercado"
+            />
+          </div>
+
+          {/* Date */}
+          <div>
+            <label className="text-xs text-subtle block mb-1">Fecha</label>
+            <input
+              type="date"
+              className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50"
+              value={formData.date ?? ''}
+              onChange={(e) => update('date', e.target.value)}
+            />
+          </div>
+
+          {/* Account */}
+          <div>
+            <label className="text-xs text-subtle block mb-1">
+              {formData.category === 'income' ? 'Cuenta destino' : 'Cuenta origen'}
+            </label>
+            <select
+              className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-2.5 text-zinc-200 focus:outline-none focus:border-emerald-500/50"
+              value={formData.account ?? ''}
+              onChange={(e) => update('account', e.target.value)}
             >
-              <option value="" disabled>Selecciona una cuenta</option>
-              {accounts.map(acc => (
-                <option key={acc.id} value={acc.id}>{acc.name}</option>
+              <option value="" disabled>
+                Selecciona una cuenta
+              </option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="flex gap-4 pt-4">
-            <button 
+          {/* Destination (only for transfers) */}
+          {isTransfer && (
+            <div>
+              <label className="text-xs text-subtle block mb-1">Cuenta destino</label>
+              <select
+                className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-2.5 text-zinc-200 focus:outline-none focus:border-emerald-500/50"
+                value={formData.destination ?? ''}
+                onChange={(e) => update('destination', e.target.value)}
+              >
+                <option value="" disabled>
+                  Selecciona una cuenta
+                </option>
+                {accounts
+                  .filter((a) => a.id !== formData.account)
+                  .map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-2">
+            <button
               onClick={() => onDelete(movement.id!)}
-              className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-500/20"
             >
-              <Trash2 size={18}/> Eliminar
+              <Trash2 size={18} /> Eliminar
             </button>
-            <button 
-              onClick={() => onSave(formData as Movement)}
-              className="flex-[2] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20"
+            <button
+              onClick={handleSave}
+              disabled={!formData.amount || Number(formData.amount) <= 0}
+              className="flex-[2] bg-emerald-600 hover:bg-emerald-500 disabled:bg-app-bg disabled:text-subtle text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/20"
             >
-              <Save size={18}/> Guardar Cambios
+              <Save size={18} /> Guardar
             </button>
           </div>
         </div>

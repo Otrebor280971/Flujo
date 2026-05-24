@@ -1,8 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type {
-  Movement,
-  AppConfig,
-} from '../lib/db';
+import type { Movement, AppConfig } from '../lib/db';
 import {
   DEFAULT_CONFIG,
   getMovements,
@@ -16,47 +13,60 @@ import { calculateState, generateAlerts, generateTimeline } from '../lib/engine'
 
 export function useFinance() {
   const [movements, setMovements] = useState<Movement[]>([]);
-  const [config, setConfig] = useState<AppConfig>({ ...DEFAULT_CONFIG, recurring: [...DEFAULT_CONFIG.recurring] });
+  const [config, setConfig] = useState<AppConfig>({
+    ...DEFAULT_CONFIG,
+    recurring: [...DEFAULT_CONFIG.recurring],
+    userAccounts: DEFAULT_CONFIG.userAccounts.map((a) => ({ ...a })),
+  });
   const [state, setState] = useState<FinancialState | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    const [movs, cfg] = await Promise.all([getMovements(), getConfig()]);
+    try {
+      const [movs, cfg] = await Promise.all([getMovements(), getConfig()]);
 
-    setConfig(cfg);
+      // Only delete movements older than 6 months — use UTC consistently
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setUTCMonth(sixMonthsAgo.getUTCMonth() - 6);
+      sixMonthsAgo.setUTCHours(0, 0, 0, 0);
+      const cutoffDate = sixMonthsAgo.toISOString().split('T')[0];
 
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-    const cutoffDate = sixMonthsAgo.toISOString().split('T')[0];
+      const oldMovements = movs.filter((m) => m.date < cutoffDate);
+      let currentMovs = movs;
 
-    const oldMovements = movs.filter(m => m.date < cutoffDate);
-
-    if (oldMovements.length > 0) {
-      console.log(`Limpiando ${oldMovements.length} registros antiguos...`);
-      for (const m of oldMovements) {
-        if (m.id) await dbDelete(m.id);
+      if (oldMovements.length > 0) {
+        console.log(`Limpiando ${oldMovements.length} registros antiguos...`);
+        await Promise.all(oldMovements.filter((m) => m.id).map((m) => dbDelete(m.id)));
+        currentMovs = movs.filter((m) => m.date >= cutoffDate);
       }
-      const updatedMovs = await getMovements();
-      setMovements(updatedMovs);
 
-      const s = calculateState(updatedMovs, cfg);
-      setState(s);
-      setAlerts(generateAlerts(s, cfg));
-      setTimeline(generateTimeline(updatedMovs, cfg));
-    } else {
-      setMovements(movs);
+      // Merge saved config with defaults to avoid missing fields on upgrade
+      const mergedConfig: AppConfig = {
+        ...DEFAULT_CONFIG,
+        ...cfg,
+        recurring: cfg.recurring ?? DEFAULT_CONFIG.recurring,
+        userAccounts:
+          cfg.userAccounts && cfg.userAccounts.length > 0
+            ? cfg.userAccounts
+            : DEFAULT_CONFIG.userAccounts,
+      };
 
-      const s = calculateState(movs, cfg);
+      setConfig(mergedConfig);
+      setMovements(currentMovs);
+
+      const s = calculateState(currentMovs, mergedConfig);
       setState(s);
-      setAlerts(generateAlerts(s, cfg));
-      setTimeline(generateTimeline(movs, cfg));
+      setAlerts(generateAlerts(s, mergedConfig));
+      setTimeline(generateTimeline(currentMovs, mergedConfig));
+    } catch (err) {
+      console.error('Error refreshing finance state:', err);
     }
   }, []);
 
   useEffect(() => {
-    refresh().then(() => setLoading(false));
+    refresh().finally(() => setLoading(false));
   }, [refresh]);
 
   const addMovement = useCallback(
@@ -83,5 +93,16 @@ export function useFinance() {
     [refresh]
   );
 
-  return { movements, config, state, alerts, timeline, loading, addMovement, deleteMovement, updateConfig, refresh };
+  return {
+    movements,
+    config,
+    state,
+    alerts,
+    timeline,
+    loading,
+    addMovement,
+    deleteMovement,
+    updateConfig,
+    refresh,
+  };
 }
