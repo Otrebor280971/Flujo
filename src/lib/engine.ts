@@ -289,12 +289,21 @@ export function generateAlerts(state: FinancialState, config?: AppConfig): Alert
   }
 
   // Low balance
-  if (state.reallyAvailable < 200 && state.reallyAvailable >= 0) {
+  if (state.reallyAvailable < 200 && state.reallyAvailable > 0) {
     alerts.push({
       id: 'low-balance',
       type: 'critical',
       title: 'Saldo ajustado',
       message: `Solo te quedan ${formatAmount(state.reallyAvailable)} realmente disponibles hasta tu próximo ingreso.`,
+    });
+  }
+
+  if(state.reallyAvailable <= 0) {
+    alerts.push({
+      id: 'no-balance',
+      type: 'critical',
+      title: 'saldo 0',
+      message: `No tienes dinero disponible hasta tu próximo ingreso, ahorita tienes libres ${formatAmount(state.reallyAvailable)}.`,
     });
   }
 
