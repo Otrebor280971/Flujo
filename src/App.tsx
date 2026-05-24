@@ -12,7 +12,7 @@ import AddMovement from './screens/AddMovement';
 import AdjustAccounts from './screens/AdjustAccounts';
 import EditMovement from './screens/EditMovement';
 
-import ScreenHeader from './components/ui/screenHeader';
+import ScreenHeader from './components/ui/ScreenHeader';
 import BottomNav from './components/ui/BottomNav';
 
 import type { MovementCategory, Movement } from './lib/db';
