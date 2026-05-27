@@ -192,12 +192,41 @@
     "newIncome": "Neue Einnahme",
     "newExpense": "Neue Ausgabe",
     "newAccount": "Neues Konto",
-    "cannotRemoveAccount": "Sie müssen mindestens ein Konto haben"
+    "cannotRemoveAccount": "Sie müssen mindestens ein Konto haben",
+    "tutorial": "Schau dir das Tutorial noch einmal an"
   },
   "languages": {
     "es": "Español",
     "en": "English",
     "fr": "Français",
     "de": "Deutsch"
+  },
+  "tutorial": {
+    "step1_title": "Dein Geld hat unterschiedliche Aufgaben",
+    "step1_body": "Flujo trennt dein Geld nach seinem Zweck.\n\n• Debitkonto → Geld zum Ausgeben\n• Kreditkarte → offene Schulden\n• Investitionen → geschütztes Geld\n• Bargeld → physisches Geld\n\nDas Ziel ist nicht nur, Bewegungen zu erfassen. Das Ziel ist zu wissen, wie viel Geld du wirklich verwenden kannst.",
+    "step1_tip": "Flujo funktioniert am besten, wenn jedes Konto echtes Geld repräsentiert.",
+    "step2_title": "Richte deine echten Konten ein",
+    "step2_body": "Gehe zu Einstellungen → Meine Konten und füge die Konten hinzu, die du im Alltag nutzt.\n\nDu kannst erstellen:\n• Debitkonten\n• Bargeldkonten\n• Kreditkonten\n• Investmentkonten",
+    "step2_tip": "Beispiel: „Hauptkonto“, „Kreditkarte“, „Langfristige Investitionen“, „Bargeld im Portemonnaie“.",
+    "step3_title": "Kreditkarten reduzieren dein frei verfügbares Geld",
+    "step3_body": "Wenn du mit Kreditkarte bezahlst, versteht Flujo, dass dieses Geld bereits gebunden ist.\n\nBeispiel:\n• Gesamte Investitionen: 20.000 $\n• Kreditkartenschulden: 5.000 $\n\n→ Tatsächlich verfügbares Geld: 15.000 $",
+    "step3_tip": "So vermeidest du es, Geld auszugeben, das du bereits für die Kreditkarte brauchst.",
+    "step4_title": "Verschiebe Geld zwischen Konten",
+    "step4_body": "Nutze Überweisungen, um Geld zwischen deinen Konten zu verschieben, ohne Einnahmen oder Ausgaben zu verändern.\n\nBeispiele:\n• Debitkonto → Investitionen\n• Debitkonto → Bargeld\n• Investitionen → Kreditkarte",
+    "step4_tip": "Überweisungen organisieren dein Geld neu, sie verändern nicht dein Vermögen.",
+    "step5_title": "Anpassen ist kein Einkommen",
+    "step5_body": "Wenn dein echter Kontostand nicht mit Flujo übereinstimmt, nutze „Kontostände anpassen“.\n\nDadurch wird die App mit der Realität synchronisiert, ohne falsche Einnahmen oder Ausgaben zu erzeugen.",
+    "step5_tip": "Beispiel: Kontostand 4.280 $ → Flujo 4.150 $ → Konto anpassen.",
+    "step6_title": "Überschüsse automatisch schützen",
+    "step6_body": "Du kannst ein maximales Limit für dein Debitkonto festlegen.\n\nWenn du darüber liegst, schlägt Flujo vor, den Überschuss in Investitionen zu verschieben, um dein Geld zu schützen.",
+    "step6_tip": "Beispiel: Wenn dein Limit 8.000 $ ist und du 11.000 $ hast, kannst du 3.000 $ in Investitionen verschieben.",
+    "step7_title": "Jetzt bist du bereit",
+    "step7_body": "Ab jetzt musst du nur noch erfassen:\n\n• Einnahmen\n• Ausgaben\n• Überweisungen\n\nFlujo berechnet automatisch:\n• frei verfügbares Geld\n• offene Schulden\n• gebundene Investitionen\n• reale Ausgabenkapazität",
+    "step7_tip": "Das Ziel ist nicht, weniger auszugeben. Das Ziel ist genau zu wissen, welches Geld du sicher verwenden kannst.",
+    "back": "Zurück",
+    "next": "Weiter",
+    "start": "Loslegen",
+    "stepOf": "{{current}} / {{total}}",
+    "reopenButton": "Einführung erneut ansehen"
   }
 }

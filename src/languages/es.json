@@ -192,12 +192,41 @@
     "newIncome": "Nuevo ingreso",
     "newExpense": "Nuevo gasto",
     "newAccount": "Nueva Cuenta",
-    "cannotRemoveAccount": "Debes tener al menos una cuenta"
+    "cannotRemoveAccount": "Debes tener al menos una cuenta",
+    "tutorial": "Ver de nuevo el tutorial"
   },
   "languages": {
     "es": "Español",
     "en": "English",
     "fr": "Français",
     "de": "Deutsch"
+  },
+  "tutorial": {
+    "step1_title": "Tu dinero tiene trabajos distintos",
+    "step1_body": "Flujo separa tu dinero según su propósito.\n\n• Débito → dinero para gastar\n• Tarjeta → deuda pendiente\n• Inversión → dinero protegido\n• Efectivo → dinero físico\n\nLa meta no es solo registrar movimientos. La meta es saber cuánto dinero realmente puedes usar.",
+    "step1_tip": "Flujo funciona mejor cuando cada cuenta representa dinero real.",
+    "step2_title": "Configura tus cuentas reales",
+    "step2_body": "Ve a Ajustes → Mis cuentas y agrega las cuentas que usas en tu día a día.\n\nPuedes crear cuentas de:\n• Débito\n• Efectivo\n• Crédito\n• Inversión",
+    "step2_tip": "Ejemplo: Cuenta Débito”, “Tarjeta Crédito”, “Cuenta inversión continua”, “Efectivo cartera”.",
+    "step3_title": "La tarjeta reduce tu dinero libre",
+    "step3_body": "Cuando compras con tarjeta, Flujo entiende que ese dinero ya está comprometido.\n\nEjemplo:\n• Inversión total: $20,000\n• Deuda tarjeta: $5,000\n\n→ Dinero libre real: $15,000",
+    "step3_tip": "Así evitas gastar dinero que realmente ya necesitas para pagar la tarjeta.",
+    "step4_title": "Mueve dinero entre cuentas",
+    "step4_body": "Usa transferencias para mover dinero entre tus cuentas sin alterar tus ingresos o gastos.\n\nEjemplos:\n• Débito → inversión\n• Débito → efectivo\n• Inversión → tarjeta",
+    "step4_tip": "Las transferencias reorganizan tu dinero, no cambian tu patrimonio.",
+    "step5_title": "Ajustar no es ingreso",
+    "step5_body": "Si el saldo real de tu banco no coincide con Flujo, usa “Ajustar saldos”.\n\nEsto sincroniza la app con la realidad sin registrar ingresos o gastos falsos.",
+    "step5_tip": "Ejemplo: banco $4,280 → Flujo $4,150 → ajustar cuenta.",
+    "step6_title": "Protege excedentes automáticamente",
+    "step6_body": "Puedes configurar un límite máximo para tu cuenta de débito.\n\nSi lo superas, Flujo te sugerirá mover el excedente a inversión para proteger tu dinero.",
+    "step6_tip": "Ejemplo: si tu límite es $8,000 y tienes $11,000, puedes mover $3,000 a inversión.",
+    "step7_title": "Ahora sí estás listo",
+    "step7_body": "A partir de ahora solo registra:\n\n• ingresos\n• gastos\n• transferencias\n\nFlujo calculará automáticamente:\n• dinero libre\n• deuda pendiente\n• inversión comprometida\n• capacidad real de gasto",
+    "step7_tip": "La meta no es gastar menos. La meta es saber exactamente qué dinero sí puedes usar.",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "start": "Comenzar",
+    "stepOf": "{{current}} / {{total}}",
+    "reopenButton": "Ver tutorial de inicio"
   }
 }

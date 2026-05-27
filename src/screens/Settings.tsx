@@ -4,7 +4,7 @@ import type { AppConfig, RecurringItem, Currency, UserAccount } from '../lib/db'
 import { DEFAULT_CONFIG } from '../lib/db';
 import { formatMoney } from '../components/Format';
 import { Icons } from '../components/icons';
-import { ArrowUpRight, Globe } from 'lucide-react';
+import { ArrowUpRight, Globe, BookOpen } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, setStoredLanguage, type SupportedLanguage } from '../lib/index';
 
 
@@ -12,11 +12,12 @@ interface Props {
   config: AppConfig;
   onSave: (config: AppConfig) => void;
   onAdjustAccounts?: () => void;
+  onOpenTutorial?: () => void;
 }
 
 const CURRENCIES: Currency[] = ['MXN', 'USD', 'EUR'];
 
-export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
+export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutorial }: Props) {
   const { t, i18n } = useTranslation();
 
   const [form, setForm] = useState<AppConfig>({
@@ -55,15 +56,15 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
   };
 
   const handleReset = () => {
-  setForm({
-    ...DEFAULT_CONFIG,
-    recurring: [...(DEFAULT_CONFIG.recurring || [])],
-    userAccounts: [],
-    investment_monthly_goal: 0,
-    debit_max_balance: 0,
-  });
-  setSaved(false);
-};
+    setForm({
+      ...DEFAULT_CONFIG,
+      recurring: [...(DEFAULT_CONFIG.recurring || [])],
+      userAccounts: [],
+      investment_monthly_goal: 0,
+      debit_max_balance: 0,
+    });
+    setSaved(false);
+  };
 
   const handleLanguageChange = (lang: SupportedLanguage) => {
     i18n.changeLanguage(lang);
@@ -141,6 +142,16 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
         </button>
       )}
 
+      {onOpenTutorial && (
+        <button
+          onClick={onOpenTutorial}
+          className="w-full flex items-center justify-center gap-2 bg-cyan-400/5 hover:bg-cyan-400/10 border border-cyan-400/20 text-cyan-300 hover:text-cyan-200 font-medium rounded-xl py-3 transition-all"
+        >
+          <BookOpen size={18} />
+          {t('settings.tutorial')}
+        </button>
+      )}
+
       {/* ── IDIOMA ── */}
       <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
@@ -162,7 +173,6 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
                   }
                 `}
               >
-                <span className="text-base leading-none">{lang.flag}</span>
                 <span>{lang.label}</span>
                 {isActive && (
                   <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
@@ -185,8 +195,8 @@ export default function Settings({ config, onSave, onAdjustAccounts }: Props) {
               key={curr}
               onClick={() => update('currency', curr)}
               className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all ${form.currency === curr
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-app-surface text-zinc-300 hover:bg-app-elevated'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-app-surface text-zinc-300 hover:bg-app-elevated'
                 }`}
             >
               {curr}

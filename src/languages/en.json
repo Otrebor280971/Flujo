@@ -192,12 +192,41 @@
     "newIncome": "New income",
     "newExpense": "New expense",
     "newAccount": "New Account",
-    "cannotRemoveAccount": "You must have at least one account"
+    "cannotRemoveAccount": "You must have at least one account",
+    "tutorial": "Watch the tutorial again"
   },
   "languages": {
     "es": "Español",
     "en": "English",
     "fr": "Français",
     "de": "Deutsch"
+  },
+  "tutorial": {
+    "step1_title": "Your money has different jobs",
+    "step1_body": "Flujo separates your money based on its purpose.\n\n• Debit → money for spending\n• Credit card → pending debt\n• Investment → protected money\n• Cash → physical money\n\nThe goal is not only to track movements. The goal is to know how much money you can actually use.",
+    "step1_tip": "Flujo works best when each account represents real money.",
+    "step2_title": "Set up your real accounts",
+    "step2_body": "Go to Settings → My accounts and add the accounts you use in daily life.\n\nYou can create:\n• Debit accounts\n• Cash accounts\n• Credit accounts\n• Investment accounts",
+    "step2_tip": "Example: “Main debit account”, “Credit card”, “Long-term investment”, “Wallet cash”.",
+    "step3_title": "Credit cards reduce your free money",
+    "step3_body": "When you buy with a credit card, Flujo understands that the money is already committed.\n\nExample:\n• Total investments: $20,000\n• Credit card debt: $5,000\n\n→ Real free money: $15,000",
+    "step3_tip": "This helps you avoid spending money that you already need to pay your card.",
+    "step4_title": "Move money between accounts",
+    "step4_body": "Use transfers to move money between your accounts without affecting your income or expenses.\n\nExamples:\n• Debit → investment\n• Debit → cash\n• Investment → credit card",
+    "step4_tip": "Transfers reorganize your money, they do not change your net worth.",
+    "step5_title": "Adjusting is not income",
+    "step5_body": "If your real balance does not match Flujo, use “Adjust balances”.\n\nThis syncs the app with reality without creating fake income or expenses.",
+    "step5_tip": "Example: bank balance $4,280 → Flujo $4,150 → adjust account.",
+    "step6_title": "Protect excess money automatically",
+    "step6_body": "You can configure a maximum limit for your debit account.\n\nIf you go above it, Flujo will suggest moving the excess into investments to protect your money.",
+    "step6_tip": "Example: if your limit is $8,000 and you have $11,000, you can move $3,000 into investments.",
+    "step7_title": "Now you're ready",
+    "step7_body": "From now on, simply record:\n\n• income\n• expenses\n• transfers\n\nFlujo will automatically calculate:\n• free money\n• pending debt\n• committed investments\n• real spending capacity",
+    "step7_tip": "The goal is not to spend less. The goal is to know exactly which money you can safely use.",
+    "back": "Back",
+    "next": "Next",
+    "start": "Get started",
+    "stepOf": "{{current}} / {{total}}",
+    "reopenButton": "View onboarding tutorial"
   }
 }

@@ -192,12 +192,41 @@
     "newIncome": "Nouveau revenu",
     "newExpense": "Nouvelle dépense",
     "newAccount": "Nouveau compte",
-    "cannotRemoveAccount": "Vous devez avoir au moins un compte"
+    "cannotRemoveAccount": "Vous devez avoir au moins un compte",
+    "tutorial": "Regardez à nouveau le tutoriel"
   },
   "languages": {
     "es": "Español",
     "en": "English",
     "fr": "Français",
     "de": "Deutsch"
+  },
+  "tutorial": {
+    "step1_title": "Votre argent a différents rôles",
+    "step1_body": "Flujo sépare votre argent selon son objectif.\n\n• Débit → argent pour les dépenses\n• Carte de crédit → dette en attente\n• Investissement → argent protégé\n• Espèces → argent physique\n\nLe but n’est pas seulement d’enregistrer des mouvements. Le but est de savoir combien d’argent vous pouvez réellement utiliser.",
+    "step1_tip": "Flujo fonctionne mieux lorsque chaque compte représente de l’argent réel.",
+    "step2_title": "Configurez vos vrais comptes",
+    "step2_body": "Allez dans Paramètres → Mes comptes et ajoutez les comptes que vous utilisez au quotidien.\n\nVous pouvez créer :\n• des comptes débit\n• des comptes espèces\n• des comptes crédit\n• des comptes investissement",
+    "step2_tip": "Exemple : « Compte débit principal », « Carte de crédit », « Investissement long terme », « Argent liquide ». ",
+    "step3_title": "Les cartes de crédit réduisent votre argent libre",
+    "step3_body": "Lorsque vous payez avec une carte de crédit, Flujo comprend que cet argent est déjà engagé.\n\nExemple :\n• Investissements totaux : 20 000 $\n• Dette carte de crédit : 5 000 $\n\n→ Argent réellement libre : 15 000 $",
+    "step3_tip": "Cela vous aide à éviter de dépenser de l’argent déjà nécessaire pour payer votre carte.",
+    "step4_title": "Déplacez l’argent entre vos comptes",
+    "step4_body": "Utilisez des transferts pour déplacer de l’argent entre vos comptes sans modifier vos revenus ou dépenses.\n\nExemples :\n• Débit → investissement\n• Débit → espèces\n• Investissement → carte de crédit",
+    "step4_tip": "Les transferts réorganisent votre argent, ils ne changent pas votre patrimoine.",
+    "step5_title": "Ajuster n’est pas un revenu",
+    "step5_body": "Si votre solde réel ne correspond pas à Flujo, utilisez « Ajuster les soldes ».\n\nCela synchronise l’application avec la réalité sans créer de faux revenus ou dépenses.",
+    "step5_tip": "Exemple : banque 4 280 $ → Flujo 4 150 $ → ajuster le compte.",
+    "step6_title": "Protégez automatiquement les excédents",
+    "step6_body": "Vous pouvez définir une limite maximale pour votre compte débit.\n\nSi vous la dépassez, Flujo vous suggérera de déplacer l’excédent vers vos investissements afin de protéger votre argent.",
+    "step6_tip": "Exemple : si votre limite est de 8 000 $ et que vous avez 11 000 $, vous pouvez transférer 3 000 $ vers les investissements.",
+    "step7_title": "Vous êtes maintenant prêt",
+    "step7_body": "À partir de maintenant, enregistrez simplement :\n\n• revenus\n• dépenses\n• transferts\n\nFlujo calculera automatiquement :\n• argent libre\n• dette en attente\n• investissements engagés\n• capacité réelle de dépense",
+    "step7_tip": "Le but n’est pas de moins dépenser. Le but est de savoir exactement quel argent vous pouvez utiliser en toute sécurité.",
+    "back": "Retour",
+    "next": "Suivant",
+    "start": "Commencer",
+    "stepOf": "{{current}} / {{total}}",
+    "reopenButton": "Voir le tutoriel de démarrage"
   }
 }

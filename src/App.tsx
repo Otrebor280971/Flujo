@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFinance } from './hooks/useFinance';
 import Dashboard from './screens/Dashboard';
@@ -9,10 +9,14 @@ import Settings from './screens/Settings';
 import AddMovement from './screens/AddMovement';
 import AdjustAccounts from './screens/AdjustAccounts';
 import EditMovement from './screens/EditMovement';
+import Tutorial, { useTutorial } from './screens/Tutorial';
 import ScreenHeader from './components/ui/ScreenHeader';
 import BottomNav from './components/ui/BottomNav';
 import type { MovementCategory, Movement } from './lib/db';
-import { LayoutDashboard, Clock, CreditCard, TrendingUp, Settings as SettingsIcon, Plus } from 'lucide-react';
+import {
+  LayoutDashboard, Clock, CreditCard,
+  TrendingUp, Settings as SettingsIcon, Plus,
+} from 'lucide-react';
 
 type Tab = 'dashboard' | 'timeline' | 'card' | 'investment' | 'settings';
 
@@ -23,9 +27,35 @@ export default function App() {
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [editingMovement, setEditingMovement] = useState<Movement | null>(null);
 
-  const { state, alerts, movements, config, loading, addMovement, deleteMovement, updateConfig, refresh } = useFinance();
+  const { show: showTutorial, dismiss: dismissTutorial, reopen: reopenTutorial } = useTutorial(); // ← NUEVO
 
-  // Tabs defined inside component so labels react to language changes
+  const {
+    state, alerts, movements, config, loading,
+    addMovement, deleteMovement, updateConfig, refresh,
+  } = useFinance();
+
+  // ── back-button handling ──────────────────────────────────────────────────
+  useEffect(() => {
+    window.history.pushState({ tab: activeTab }, '');
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (showTutorial) { dismissTutorial(); window.history.pushState({ tab: activeTab }, ''); return; }
+      if (editingMovement) { setEditingMovement(null); window.history.pushState({ tab: activeTab }, ''); return; }
+      if (addOpen) { setAddOpen(false); window.history.pushState({ tab: activeTab }, ''); return; }
+      if (adjustOpen) { setAdjustOpen(false); window.history.pushState({ tab: activeTab }, ''); return; }
+      if (activeTab !== 'dashboard') { setActiveTab('dashboard'); window.history.pushState({ tab: 'dashboard' }, ''); return; }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [activeTab, addOpen, adjustOpen, editingMovement, showTutorial]);
+
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    window.history.pushState({ tab }, '');
+  };
+
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard',  label: t('nav.dashboard'),  icon: LayoutDashboard },
     { id: 'timeline',   label: t('nav.timeline'),   icon: Clock },
@@ -44,7 +74,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-app-bg max-w-lg mx-auto relative flex flex-col">
-      <br/>
       <ScreenHeader title={t('app.title')} subtitle={t('app.subtitle')} />
 
       <main className="flex-1 overflow-y-auto screen-container">
@@ -58,8 +87,7 @@ export default function App() {
             onConfirmPending={async (item) => {
               const today = new Date();
               const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-                .toISOString()
-                .split('T')[0];
+                .toISOString().split('T')[0];
               await addMovement({
                 category: item.type as MovementCategory,
                 account: item.account,
@@ -72,7 +100,6 @@ export default function App() {
             }}
           />
         )}
-
         {activeTab === 'timeline' && (
           <Timeline
             events={movements}
@@ -81,38 +108,40 @@ export default function App() {
             onEdit={setEditingMovement}
           />
         )}
-
         {activeTab === 'card' && (
           <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts} />
         )}
-
         {activeTab === 'investment' && (
           <InvestmentScreen state={state} config={config} currency={config?.currency || 'MXN'} />
         )}
-
         {activeTab === 'settings' && (
-          <Settings config={config} onSave={updateConfig} onAdjustAccounts={() => setAdjustOpen(true)} />
+          <Settings
+            config={config}
+            onSave={updateConfig}
+            onAdjustAccounts={() => setAdjustOpen(true)}
+            onOpenTutorial={reopenTutorial}
+          />
         )}
       </main>
 
       <button
         onClick={() => setAddOpen(true)}
-        className="fixed bottom-20 z-40 w-14 h-14 rounded-full flex items-center justify-center bg-cyan-300 text-black shadow-[0_8px_30px_rgba(103,232,249,0.25)] active:scale-95 transition-all"
-        style={{ right: 'max(1rem, calc((100vw - 32rem) / 2 + 1rem))' }}
+        className="fixed z-40 w-14 h-14 rounded-full flex items-center justify-center bg-cyan-300 text-black shadow-[0_8px_30px_rgba(103,232,249,0.25)] active:scale-95 transition-all"
+        style={{
+          bottom: 'calc(env(safe-area-inset-bottom) + 4.5rem)',
+          right: 'max(1rem, calc((100vw - 32rem) / 2 + 1rem))',
+        }}
       >
         <Plus size={24} />
       </button>
 
-      <BottomNav tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+      <BottomNav tabs={tabs} activeTab={activeTab} onChange={handleTabChange} />
 
       <AddMovement
         open={addOpen}
         onClose={() => setAddOpen(false)}
         accounts={config?.userAccounts || []}
-        onSubmit={async (m) => {
-          await addMovement(m);
-          refresh();
-        }}
+        onSubmit={async (m) => { await addMovement(m); refresh(); }}
       />
 
       <EditMovement
@@ -143,6 +172,9 @@ export default function App() {
         onAdjusted={refresh}
         accounts={config.userAccounts}
       />
+
+      {/* ── Tutorial — siempre el último para quedar encima de todo ── */}
+      <Tutorial open={showTutorial} onClose={dismissTutorial} />
     </div>
   );
 }
