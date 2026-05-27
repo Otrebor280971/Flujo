@@ -1,4 +1,4 @@
-package com.Otrebor050607.flujocontrolefectivo;
+package com.Otrebor050607.flujocontrolgastos;
 
 import com.getcapacitor.BridgeActivity;
 

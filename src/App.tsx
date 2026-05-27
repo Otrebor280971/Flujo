@@ -44,6 +44,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-app-bg max-w-lg mx-auto relative flex flex-col">
+      <br/>
       <ScreenHeader title={t('app.title')} subtitle={t('app.subtitle')} />
 
       <main className="flex-1 overflow-y-auto screen-container">
