@@ -21,29 +21,15 @@ export interface FinancialState {
   totalInvestment: number;
   monthlyIncome: number;
   monthlyExpense: number;
-  /** Ahorro neto real del mes: ingresos - gastos (solo movimientos confirmados) */
   monthlySavings: number;
-  /** Cuánto se ha enviado a inversión este mes */
   monthlyInvestmentContributions: number;
   debit: number;
   cash: number;
   availableToSpend: number;
-
-  /**
-   * Dinero realmente libre hasta el próximo ingreso:
-   * saldo disponible - gastos fijos pendientes antes del próximo ingreso - crédito que hay que cubrir
-   */
   reallyAvailable: number;
-
-  /** Gastos fijos pendientes que caen ANTES del próximo ingreso */
   upcomingExpensesBeforeIncome: number;
-
-  /** Proyección de saldo al llegar el próximo ingreso */
   projectedBalanceAtNextIncome: number;
-
-  /** Excedente en débito sobre el límite configurado */
   debitExcess: number;
-
   creditDebt: number;
   investment: number;
   cardLimit: number;
@@ -84,9 +70,7 @@ export function calculateState(
 ): FinancialState {
   const balances: Record<string, number> = {};
 
-  config.userAccounts.forEach((acc) => {
-    balances[acc.id] = 0;
-  });
+  config.userAccounts.forEach((acc) => { balances[acc.id] = 0 });
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -107,37 +91,24 @@ export function calculateState(
 
     const mDate = new Date(m.date + 'T12:00:00');
 
-    const isCurrentMonth =
-      mDate.getMonth() === currentMonth &&
-      mDate.getFullYear() === currentYear;
+    const isCurrentMonth = mDate.getMonth() === currentMonth && mDate.getFullYear() === currentYear;
 
     if (m.category === 'income' || m.category === 'adjustment') {
       balances[m.account] += m.amount;
 
-      if (isCurrentMonth && m.category === 'income') {
-        monthlyIncome += m.amount;
-      }
+      if (isCurrentMonth && m.category === 'income') { monthlyIncome += m.amount }
     } else if (m.category === 'expense') {
       balances[m.account] -= m.amount;
 
-      if (isCurrentMonth) {
-        monthlyExpense += m.amount;
-      }
+      if (isCurrentMonth) { monthlyExpense += m.amount }
     } else if (m.category === 'transfer') {
       balances[m.account] -= m.amount;
 
       if (m.destination) {
-        if (balances[m.destination] === undefined) {
-          balances[m.destination] = 0;
-        }
-
+        if (balances[m.destination] === undefined) { balances[m.destination] = 0}
         balances[m.destination] += m.amount;
-
-        if (
-          isCurrentMonth &&
-          investmentAccountIds.has(m.destination)
-        ) {
-          monthlyInvestmentContributions += m.amount;
+        if ( isCurrentMonth && investmentAccountIds.has(m.destination)) { 
+          monthlyInvestmentContributions += m.amount 
         }
       }
     }
@@ -166,20 +137,20 @@ export function calculateState(
 
       const limit = Number(
         acc.creditConfig?.limit ??
-          acc.card_limit ??
-          0
+        acc.card_limit ??
+        0
       );
 
       const paymentDay = Number(
         acc.creditConfig?.payment_day ??
-          acc.card_payment_day ??
-          1
+        acc.card_payment_day ??
+        1
       );
 
       const cutoffDay = Number(
         acc.creditConfig?.cutoff_day ??
-          acc.card_cutoff_day ??
-          15
+        acc.card_cutoff_day ??
+        15
       );
 
       const remaining = Math.max(0, limit - debt);
@@ -269,7 +240,7 @@ export function calculateState(
 
       const diffDays = Math.ceil(
         (target.getTime() - today.getTime()) /
-          (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24)
       );
 
       if (
@@ -313,7 +284,7 @@ export function calculateState(
 
       const daysUntilExp = Math.ceil(
         (expDate.getTime() - today.getTime()) /
-          (1000 * 60 * 60 * 24)
+        (1000 * 60 * 60 * 24)
       );
 
       if (daysUntilExp < daysUntilIncome) {
@@ -335,7 +306,7 @@ export function calculateState(
   const debitBalance = config.userAccounts
     .filter((a) => a.type === 'debit')
     .reduce((sum, a) => sum + (balances[a.id] || 0), 0);
-  
+
   const cashBalance = config.userAccounts
     .filter((a) => a.type === 'cash')
     .reduce((sum, a) => sum + (balances[a.id] || 0), 0);
@@ -555,8 +526,9 @@ export function generateTimeline(
       config.recurring || []
     );
 
-  const now =
-    new Date().toISOString().split('T')[0];
+  const nowDate = new Date();
+  const now = new Date(nowDate.getTime() - nowDate.getTimezoneOffset() * 60000)
+    .toISOString().split('T')[0];
 
   const futureEvents: TimelineEvent[] =
     pendingRecurring.map((r) => {
@@ -564,13 +536,8 @@ export function generateTimeline(
 
       dateObj.setDate(r.day);
 
-      if (
-        dateObj.toISOString().split('T')[0] <
-        now
-      ) {
-        dateObj.setMonth(
-          dateObj.getMonth() + 1
-        );
+      if (dateObj.toISOString().split('T')[0] < now ) {
+        dateObj.setMonth( dateObj.getMonth() + 1);
       }
 
       return {
@@ -638,6 +605,6 @@ function calculateDaysUntil(
 
   return Math.ceil(
     (target.getTime() - now.getTime()) /
-      (1000 * 60 * 60 * 24)
+    (1000 * 60 * 60 * 24)
   );
 }
