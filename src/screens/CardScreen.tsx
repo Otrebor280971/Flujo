@@ -49,47 +49,15 @@ export default function CardScreen({
   return (
     <div className="space-y-4 pb-4">
       {creditAccounts.map((card) => {
-        const debt = Math.abs(
-          state.balances[card.id] || 0
-        );
+        const debt = Math.abs( state.balances[card.id] || 0);
+        const limit = card.creditConfig?.limit || 0;
+        const remaining = Math.max( 0, limit - debt);
+        const usagePercent = limit > 0 ? (debt / limit) * 100 : 0;
+        const barColor = usagePercent < 50 ? '#10b981' : usagePercent < 80 ? '#f59e0b' : '#ef4444';
 
-        const limit =
-          card.creditConfig?.limit || 0;
-
-        const remaining = Math.max(
-          0,
-          limit - debt
-        );
-
-        const usagePercent =
-          limit > 0
-            ? (debt / limit) * 100
-            : 0;
-
-        const barColor =
-          usagePercent < 50
-            ? '#10b981'
-            : usagePercent < 80
-              ? '#f59e0b'
-              : '#ef4444';
-
-        const today = new Date().getDate();
-
-        const paymentDay =
-          card.creditConfig?.payment_day || 0;
-
-        const cutoffDay =
-          card.creditConfig?.cutoff_day || 0;
-
-        const daysUntilCutoff =
-          cutoffDay >= today
-            ? cutoffDay - today
-            : 30 - today + cutoffDay;
-
-        const daysUntilPayment =
-          paymentDay >= today
-            ? paymentDay - today
-            : 30 - today + paymentDay;
+        const cardState = state.creditCards.find(c => c.id === card.id);
+        const daysUntilCutoff = cardState?.daysUntilCutoff ?? 0;
+        const daysUntilPayment = cardState?.daysUntilPayment ?? 0;
 
         return (
           <div

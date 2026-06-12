@@ -334,10 +334,11 @@ export function calculateState(
 
   const debitBalance = config.userAccounts
     .filter((a) => a.type === 'debit')
-    .reduce(
-      (sum, a) => sum + (balances[a.id] || 0),
-      0
-    );
+    .reduce((sum, a) => sum + (balances[a.id] || 0), 0);
+  
+  const cashBalance = config.userAccounts
+    .filter((a) => a.type === 'cash')
+    .reduce((sum, a) => sum + (balances[a.id] || 0), 0);
 
   const debitMax =
     config.debit_max_balance || 0;
@@ -360,8 +361,8 @@ export function calculateState(
     monthlyExpense,
     monthlySavings,
     monthlyInvestmentContributions,
-    debit: balances['debit'] || 0,
-    cash: balances['cash'] || 0,
+    debit: debitBalance,
+    cash: cashBalance,
     availableToSpend: totalAvailable,
     reallyAvailable,
     upcomingExpensesBeforeIncome,

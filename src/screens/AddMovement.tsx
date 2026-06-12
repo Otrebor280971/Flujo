@@ -24,17 +24,18 @@ const getAccountStyle = (type: AccountType) => {
 
 export default function AddMovement({ open, onClose, accounts, onSubmit }: Props) {
   const { t } = useTranslation();
-  const today = new Date();
+  const getLocalToday = () => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString().split('T')[0];
+  };
   const [step, setStep] = useState<Step>('category');
   const [category, setCategory] = useState<MovementCategory>('expense');
   const [account, setAccount] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
-  const [date, setDate] = useState(() => {
-    return new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString().split('T')[0];
-  });
+  const [date, setDate] = useState(getLocalToday);
 
   useEffect(() => {
     if (open && accounts.length > 0) {
@@ -54,8 +55,7 @@ export default function AddMovement({ open, onClose, accounts, onSubmit }: Props
     }
     setAmount('');
     setNote('');
-    setDate(new Date(today.getTime() - today.getTimezoneOffset() * 60000)
-      .toISOString().split('T')[0]);
+    setDate(getLocalToday);
   };
 
   const handleClose = () => { reset(); onClose(); };
