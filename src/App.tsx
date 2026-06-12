@@ -29,10 +29,7 @@ export default function App() {
 
   const { show: showTutorial, dismiss: dismissTutorial, reopen: reopenTutorial } = useTutorial(); // ← NUEVO
 
-  const {
-    state, alerts, movements, config, loading,
-    addMovement, deleteMovement, updateConfig, refresh,
-  } = useFinance();
+  const { state, alerts, movements, config, loading, addMovement, deleteMovement, updateConfig, refresh, } = useFinance();
 
   // ── back-button handling ──────────────────────────────────────────────────
   useEffect(() => {

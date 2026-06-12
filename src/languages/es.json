@@ -118,6 +118,9 @@
     "difference": "Diferencia: {{diff}}",
     "cancel": "Cancelar",
     "save": "Guardar",
+    "creditcard": "tarjeta de crédito",
+    "currentdebt": "Deuda actual",
+    "totaldebt": "deuda total",
     "saving": "Guardando..."
   },
   "cardScreen": {
