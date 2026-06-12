@@ -164,7 +164,7 @@ export default function AdjustAccounts({ open, onClose, state, onAdjusted, accou
                   {/* Etiqueta discreta para crédito */}
                   {isCredit && (
                     <span className="ml-auto text-[11px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">
-                      t('adjustAccounts.creditcard')
+                      {t('adjustAccounts.creditcard')}
                     </span>
                   )}
                 </div>

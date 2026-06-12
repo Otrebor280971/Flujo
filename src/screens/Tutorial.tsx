@@ -18,7 +18,6 @@ const STORAGE_KEY = 'flujo_tutorial_done';
 
 export function useTutorial() {
   const [show, setShow] = useState(false);
-  // Guardamos si es la primera apertura para mostrar el selector de idioma
   const [isFirstTime, setIsFirstTime] = useState(false);
 
   useEffect(() => {
@@ -40,7 +39,7 @@ export function useTutorial() {
   };
 
   const reopen = () => {
-    setIsFirstTime(false); // reopen nunca muestra el selector
+    setIsFirstTime(false);
     setShow(true);
   };
 

@@ -13,10 +13,7 @@ import Tutorial, { useTutorial } from './screens/Tutorial';
 import ScreenHeader from './components/ui/ScreenHeader';
 import BottomNav from './components/ui/BottomNav';
 import type { MovementCategory, Movement } from './lib/db';
-import {
-  LayoutDashboard, Clock, CreditCard,
-  TrendingUp, Settings as SettingsIcon, Plus,
-} from 'lucide-react';
+import { LayoutDashboard, Clock, CreditCard, TrendingUp, Settings as SettingsIcon, Plus } from 'lucide-react';
 
 type Tab = 'dashboard' | 'timeline' | 'card' | 'investment' | 'settings';
 
@@ -27,7 +24,7 @@ export default function App() {
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [editingMovement, setEditingMovement] = useState<Movement | null>(null);
 
-  const { show: showTutorial, dismiss: dismissTutorial, reopen: reopenTutorial } = useTutorial(); // ← NUEVO
+  const { show: showTutorial, dismiss: dismissTutorial, reopen: reopenTutorial, isFirstTime } = useTutorial();
 
   const { state, alerts, movements, config, loading, addMovement, deleteMovement, updateConfig, refresh, } = useFinance();
 
@@ -147,9 +144,9 @@ export default function App() {
         onClose={() => setEditingMovement(null)}
         accounts={config?.userAccounts || []}
         onSave={async (m) => {
-          if (m.id) await deleteMovement(m.id);
           const { id, created_at, ...movementData } = m as any;
           await addMovement(movementData);
+          if (m.id) await deleteMovement(m.id);
           setEditingMovement(null);
           refresh();
         }}
@@ -171,7 +168,7 @@ export default function App() {
       />
 
       {/* ── Tutorial — siempre el último para quedar encima de todo ── */}
-      <Tutorial open={showTutorial} onClose={dismissTutorial} />
+      <Tutorial open={showTutorial} onClose={dismissTutorial} isFirstTime={isFirstTime} />
     </div>
   );
 }

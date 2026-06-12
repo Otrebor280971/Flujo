@@ -14,23 +14,27 @@ type Step = 'category' | 'account' | 'details';
 
 const getAccountStyle = (type: AccountType) => {
   switch (type) {
-    case 'debit':      return { icon: Wallet,     color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' };
-    case 'cash':       return { icon: Banknote,   color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
-    case 'credit':     return { icon: CreditCard, color: 'text-red-400 bg-red-500/10 border-red-500/20' };
+    case 'debit': return { icon: Wallet, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' };
+    case 'cash': return { icon: Banknote, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+    case 'credit': return { icon: CreditCard, color: 'text-red-400 bg-red-500/10 border-red-500/20' };
     case 'investment': return { icon: TrendingUp, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' };
-    default:           return { icon: Wallet,     color: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20' };
+    default: return { icon: Wallet, color: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20' };
   }
 };
 
 export default function AddMovement({ open, onClose, accounts, onSubmit }: Props) {
   const { t } = useTranslation();
+  const today = new Date();
   const [step, setStep] = useState<Step>('category');
   const [category, setCategory] = useState<MovementCategory>('expense');
   const [account, setAccount] = useState<string>('');
   const [destination, setDestination] = useState<string>('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(() => {
+    return new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString().split('T')[0];
+  });
 
   useEffect(() => {
     if (open && accounts.length > 0) {
@@ -50,7 +54,8 @@ export default function AddMovement({ open, onClose, accounts, onSubmit }: Props
     }
     setAmount('');
     setNote('');
-    setDate(new Date().toISOString().split('T')[0]);
+    setDate(new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+      .toISOString().split('T')[0]);
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -69,11 +74,11 @@ export default function AddMovement({ open, onClose, accounts, onSubmit }: Props
 
   const stepTitle =
     step === 'category' ? t('addMovement.title_category')
-    : step === 'account'
-      ? category === 'income' ? t('addMovement.title_account_income')
-      : category === 'expense' ? t('addMovement.title_account_expense')
-      : t('addMovement.title_account_transfer')
-    : t('addMovement.title_details');
+      : step === 'account'
+        ? category === 'income' ? t('addMovement.title_account_income')
+          : category === 'expense' ? t('addMovement.title_account_expense')
+            : t('addMovement.title_account_transfer')
+        : t('addMovement.title_details');
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
@@ -170,12 +175,12 @@ export default function AddMovement({ open, onClose, accounts, onSubmit }: Props
         {step === 'details' && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-900/50 border border-zinc-800 text-sm text-zinc-400">
-              {category === 'income'   && <ArrowDownLeft  size={14} className="text-emerald-400" />}
-              {category === 'expense'  && <ArrowUpRight   size={14} className="text-red-400" />}
+              {category === 'income' && <ArrowDownLeft size={14} className="text-emerald-400" />}
+              {category === 'expense' && <ArrowUpRight size={14} className="text-red-400" />}
               {category === 'transfer' && <ArrowRightLeft size={14} className="text-blue-400" />}
               <span>
-                {category === 'income'   && t('addMovement.incomeIn',       { account: accountLabel(account) })}
-                {category === 'expense'  && t('addMovement.expenseFrom',    { account: accountLabel(account) })}
+                {category === 'income' && t('addMovement.incomeIn', { account: accountLabel(account) })}
+                {category === 'expense' && t('addMovement.expenseFrom', { account: accountLabel(account) })}
                 {category === 'transfer' && t('addMovement.transferBetween', { from: accountLabel(account), to: accountLabel(destination) })}
               </span>
             </div>

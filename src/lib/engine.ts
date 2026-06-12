@@ -307,7 +307,8 @@ export function calculateState(
       expDate.setDate(r.day);
 
       if (expDate < today) {
-        expDate.setMonth(expDate.getMonth() + 1);
+        upcomingExpensesBeforeIncome += r.amount;
+        continue;
       }
 
       const daysUntilExp = Math.ceil(
@@ -614,7 +615,7 @@ function getPendingRecurring(
   return recurring.filter(
     (r) =>
       !thisMonthMovements.some(
-        (m) => m.note === r.label
+        (m) => m.note?.trim().toLowerCase() === r.label?.trim().toLowerCase()
       )
   );
 }
