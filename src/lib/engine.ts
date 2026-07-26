@@ -9,6 +9,17 @@ export interface CreditCardState {
   remaining: number;
   paymentDay: number;
   cutoffDay: number;
+  annualInterestRate: number;
+  minimumPaymentPercent: number;
+  minimumPayment: number;
+  estimatedMonthlyInterest: number;
+  statementBalance: number;
+  statementPaid: number;
+  statementRemaining: number;
+  openCycleBalance: number;
+  lastCutoffDate: string;
+  nextCutoffDate: string;
+  nextPaymentDate: string;
   daysUntilPayment: number;
   daysUntilCutoff: number;
 }
@@ -23,6 +34,7 @@ export interface FinancialState {
   monthlyExpense: number;
   monthlySavings: number;
   monthlyInvestmentContributions: number;
+  monthlyInvestmentGoal: number;
   debit: number;
   cash: number;
   availableToSpend: number;
@@ -153,11 +165,64 @@ export function calculateState(
         15
       );
 
+      const annualInterestRate = Number(
+        acc.creditConfig?.annual_interest_rate ??
+        acc.card_annual_interest_rate ??
+        0
+      );
+
+      const minimumPaymentPercent = Number(
+        acc.creditConfig?.minimum_payment_percent ??
+        acc.card_minimum_payment_percent ??
+        0
+      );
+
       const remaining = Math.max(0, limit - debt);
 
-      const daysUntilPayment = calculateDaysUntil(paymentDay);
+      const cycle = getCreditCycleDates(
+        cutoffDay,
+        paymentDay
+      );
 
-      const daysUntilCutoff = calculateDaysUntil(cutoffDay);
+      const statement = calculateCreditStatement(
+        movements,
+        acc.id,
+        cycle.lastCutoffDate,
+        cycle.nextCutoffDate
+      );
+
+      const statementRemaining = Math.max(
+        0,
+        debt - statement.openCycleBalance
+      );
+
+      const monthlyInterestRate =
+        annualInterestRate > 0
+          ? annualInterestRate / 100 / 12
+          : 0;
+
+      const estimatedMonthlyInterest =
+        statementRemaining *
+        monthlyInterestRate;
+
+      const minimumPayment =
+        minimumPaymentPercent > 0
+          ? Math.min(
+              statementRemaining,
+              statementRemaining *
+                (minimumPaymentPercent / 100)
+            )
+          : 0;
+
+      const daysUntilPayment =
+        calculateDaysUntilDate(
+          cycle.nextPaymentDate
+        );
+
+      const daysUntilCutoff =
+        calculateDaysUntilDate(
+          cycle.nextCutoffDate
+        );
 
       return {
         id: acc.id,
@@ -167,6 +232,32 @@ export function calculateState(
         remaining,
         paymentDay,
         cutoffDay,
+        annualInterestRate,
+        minimumPaymentPercent,
+        minimumPayment,
+        estimatedMonthlyInterest,
+        statementBalance:
+          statementRemaining +
+          statement.statementPaid,
+        statementPaid:
+          statement.statementPaid,
+        statementRemaining,
+        openCycleBalance: Math.max(
+          0,
+          Math.min(
+            debt,
+            statement.openCycleBalance
+          )
+        ),
+        lastCutoffDate: toDateInputValue(
+          cycle.lastCutoffDate
+        ),
+        nextCutoffDate: toDateInputValue(
+          cycle.nextCutoffDate
+        ),
+        nextPaymentDate: toDateInputValue(
+          cycle.nextPaymentDate
+        ),
         daysUntilPayment,
         daysUntilCutoff,
       };
@@ -182,11 +273,51 @@ export function calculateState(
     0
   );
 
-  const annualYieldRate =
-    (config.investment_annual_yield || 0) / 100;
+  const investmentAccounts = config.userAccounts.filter(
+    (account) => account.type === 'investment'
+  );
+
+  const hasInvestmentSpecificConfig =
+    investmentAccounts.some(
+      (account) =>
+        account.investmentConfig
+          ?.annual_yield !== undefined ||
+        account.investmentConfig
+          ?.monthly_goal !== undefined
+    );
+
+  const monthlyInvestmentGoal =
+    hasInvestmentSpecificConfig
+      ? investmentAccounts.reduce(
+          (sum, account) =>
+            sum +
+            (account.investmentConfig
+              ?.monthly_goal || 0),
+          0
+        )
+      : config.investment_monthly_goal || 0;
 
   const investmentYield =
-    totalInvestment * annualYieldRate;
+    hasInvestmentSpecificConfig
+      ? investmentAccounts.reduce(
+          (sum, account) => {
+            const balance =
+              balances[account.id] || 0;
+
+            const annualYieldRate =
+              (account.investmentConfig
+                ?.annual_yield || 0) / 100;
+
+            return (
+              sum +
+              balance * annualYieldRate
+            );
+          },
+          0
+        )
+      : totalInvestment *
+        ((config.investment_annual_yield || 0) /
+          100);
 
   const investmentYieldMonthly =
     investmentYield / 12;
@@ -332,6 +463,7 @@ export function calculateState(
     monthlyExpense,
     monthlySavings,
     monthlyInvestmentContributions,
+    monthlyInvestmentGoal,
     debit: debitBalance,
     cash: cashBalance,
     availableToSpend: totalAvailable,
@@ -401,12 +533,9 @@ export function generateAlerts(
     });
   }
 
-  if (
-    config?.investment_monthly_goal &&
-    config.investment_monthly_goal > 0
-  ) {
+  if (state.monthlyInvestmentGoal > 0) {
     const goal =
-      config.investment_monthly_goal;
+      state.monthlyInvestmentGoal;
 
     const contributed =
       state.monthlyInvestmentContributions;
@@ -588,23 +717,157 @@ function getPendingRecurring(
   );
 }
 
-function calculateDaysUntil(
+function calculateCreditStatement(
+  movements: Movement[],
+  cardId: string,
+  lastCutoffDate: Date,
+  nextCutoffDate: Date
+) {
+  let closedCharges = 0;
+  let openCycleBalance = 0;
+  let statementPaid = 0;
+
+  movements.forEach((m) => {
+    const date = new Date(
+      m.date + 'T12:00:00'
+    );
+
+    if (
+      m.category === 'expense' &&
+      m.account === cardId
+    ) {
+      if (date <= lastCutoffDate) {
+        closedCharges += m.amount;
+      } else if (date < nextCutoffDate) {
+        openCycleBalance += m.amount;
+      }
+    }
+
+    if (
+      m.category === 'transfer' &&
+      m.destination === cardId &&
+      date > lastCutoffDate
+    ) {
+      statementPaid += m.amount;
+    }
+  });
+
+  return {
+    statementBalance: Math.max(0, closedCharges),
+    statementPaid: Math.max(0, statementPaid),
+    openCycleBalance: Math.max(0, openCycleBalance),
+  };
+}
+
+function getCreditCycleDates(
+  cutoffDay: number,
+  paymentDay: number
+) {
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+
+  const normalizedCutoffDay =
+    normalizeMonthDay(cutoffDay);
+
+  const normalizedPaymentDay =
+    normalizeMonthDay(paymentDay);
+
+  const lastCutoffDate =
+    buildDateForMonthDay(
+      today.getFullYear(),
+      today.getMonth(),
+      normalizedCutoffDay
+    );
+
+  if (lastCutoffDate > today) {
+    lastCutoffDate.setMonth(
+      lastCutoffDate.getMonth() - 1
+    );
+  }
+
+  const nextCutoffDate = new Date(
+    lastCutoffDate
+  );
+
+  nextCutoffDate.setMonth(
+    nextCutoffDate.getMonth() + 1
+  );
+
+  const nextPaymentDate =
+    buildDateForMonthDay(
+      lastCutoffDate.getFullYear(),
+      lastCutoffDate.getMonth(),
+      normalizedPaymentDay
+    );
+
+  if (normalizedPaymentDay <= normalizedCutoffDay) {
+    nextPaymentDate.setMonth(
+      nextPaymentDate.getMonth() + 1
+    );
+  }
+
+  if (nextPaymentDate < today) {
+    nextPaymentDate.setMonth(
+      nextPaymentDate.getMonth() + 1
+    );
+  }
+
+  return {
+    lastCutoffDate,
+    nextCutoffDate,
+    nextPaymentDate,
+  };
+}
+
+function buildDateForMonthDay(
+  year: number,
+  month: number,
   day: number
+) {
+  const date = new Date(year, month, 1);
+  const lastDay = new Date(
+    year,
+    month + 1,
+    0
+  ).getDate();
+
+  date.setDate(Math.min(day, lastDay));
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+}
+
+function normalizeMonthDay(day: number) {
+  if (!Number.isFinite(day)) return 1;
+
+  return Math.min(
+    31,
+    Math.max(1, Math.trunc(day))
+  );
+}
+
+function calculateDaysUntilDate(
+  target: Date
 ): number {
   const now = new Date();
 
-  const target = new Date();
+  now.setHours(0, 0, 0, 0);
 
-  target.setHours(0, 0, 0, 0);
-
-  target.setDate(day);
-
-  if (target <= now) {
-    target.setMonth(target.getMonth() + 1);
-  }
-
-  return Math.ceil(
-    (target.getTime() - now.getTime()) /
-    (1000 * 60 * 60 * 24)
+  return Math.max(
+    0,
+    Math.ceil(
+      (target.getTime() - now.getTime()) /
+        (1000 * 60 * 60 * 24)
+    )
   );
+}
+
+function toDateInputValue(date: Date) {
+  const local = new Date(
+    date.getTime() -
+      date.getTimezoneOffset() * 60000
+  );
+
+  return local.toISOString().split('T')[0];
 }

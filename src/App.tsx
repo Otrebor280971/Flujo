@@ -77,7 +77,6 @@ export default function App() {
             alerts={alerts}
             currency={config?.currency || 'MXN'}
             accounts={config?.userAccounts || []}
-            config={config}
             onConfirmPending={async (item) => {
               const today = new Date();
               const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
@@ -103,7 +102,18 @@ export default function App() {
           />
         )}
         {activeTab === 'card' && (
-          <CardScreen state={state} currency={config?.currency || 'MXN'} accounts={config.userAccounts} />
+          <CardScreen
+            state={state}
+            currency={config?.currency || 'MXN'}
+            accounts={config.userAccounts}
+            onPayCard={async (payment) => {
+              await addMovement({
+                category: 'transfer',
+                ...payment,
+              });
+              refresh();
+            }}
+          />
         )}
         {activeTab === 'investment' && (
           <InvestmentScreen state={state} config={config} currency={config?.currency || 'MXN'} />

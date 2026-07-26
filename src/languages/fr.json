@@ -131,7 +131,18 @@
     "totalLimit": "Limite totale",
     "available": "Disponible",
     "daysToCutoff": "Jours avant la coupure",
-    "daysToPayment": "Jours avant le paiement"
+    "daysToPayment": "Jours avant le paiement",
+    "statementDue": "Solde a payer",
+    "openCycle": "Cycle ouvert",
+    "minimumPayment": "Paiement minimum",
+    "estimatedInterest": "Interet estime",
+    "payCard": "Payer la carte",
+    "statementBalance": "Solde du releve",
+    "totalDebt": "Dette totale",
+    "customAmount": "Montant personnalise",
+    "payFrom": "Payer depuis",
+    "confirmPayment": "Confirmer le paiement",
+    "paymentNote": "Paiement a {{name}}"
   },
   "investment": {
     "empty": "Aucun investissement enregistré",
@@ -188,6 +199,8 @@
     "creditLimit": "Limite",
     "creditPaymentDay": "Le jour du paiement",
     "creditCutoffDay": "Jour de coupure",
+    "creditAnnualInterest": "Interet annuel (%)",
+    "creditMinimumPayment": "Paiement minimum (%)",
     "recurringName": "Nom",
     "recurringDay": "Jour",
     "recurringAmount": "Montant",

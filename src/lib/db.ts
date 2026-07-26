@@ -16,6 +16,13 @@ export interface CreditCardConfig {
   limit?: number;
   payment_day?: number;
   cutoff_day?: number;
+  annual_interest_rate?: number;
+  minimum_payment_percent?: number;
+}
+
+export interface InvestmentAccountConfig {
+  annual_yield?: number;
+  monthly_goal?: number;
 }
 
 export interface UserAccount {
@@ -24,6 +31,7 @@ export interface UserAccount {
   type: AccountType;
   color?: string;
   creditConfig?: CreditCardConfig;
+  investmentConfig?: InvestmentAccountConfig;
 }
 
 export interface Movement {
@@ -234,6 +242,39 @@ export async function getConfig(): Promise<AppConfig> {
                           ?.cutoff_day ??
                         (acc as any)
                           .card_cutoff_day ??
+                        undefined,
+
+                      annual_interest_rate:
+                        acc.creditConfig
+                          ?.annual_interest_rate ??
+                        (acc as any)
+                          .card_annual_interest_rate ??
+                        undefined,
+
+                      minimum_payment_percent:
+                        acc.creditConfig
+                          ?.minimum_payment_percent ??
+                        (acc as any)
+                          .card_minimum_payment_percent ??
+                        undefined,
+                    }
+                  : undefined,
+
+              investmentConfig:
+                acc.type === 'investment'
+                  ? {
+                      annual_yield:
+                        acc.investmentConfig
+                          ?.annual_yield ??
+                        (acc as any)
+                          .investment_annual_yield ??
+                        undefined,
+
+                      monthly_goal:
+                        acc.investmentConfig
+                          ?.monthly_goal ??
+                        (acc as any)
+                          .investment_monthly_goal ??
                         undefined,
                     }
                   : undefined,

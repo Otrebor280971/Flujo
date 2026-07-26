@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { FinancialState, Alert } from '../lib/engine';
-import type { Currency, RecurringItem, UserAccount, AppConfig } from '../lib/db';
+import type { Currency, RecurringItem, UserAccount } from '../lib/db';
 import { formatMoney } from '../components/Format';
 import Card from '../components/ui/Card';
 import MetricCard from '../components/ui/MetricCard';
@@ -16,11 +16,10 @@ interface Props {
   alerts: Alert[];
   currency: Currency;
   accounts: UserAccount[];
-  config: AppConfig;
   onConfirmPending?: (item: RecurringItem) => void;
 }
 
-export default function Dashboard({ state, alerts, currency, accounts, config, onConfirmPending }: Props) {
+export default function Dashboard({ state, alerts, currency, accounts, onConfirmPending }: Props) {
   const { t } = useTranslation();
 
   if (!state) return null;
@@ -32,7 +31,7 @@ export default function Dashboard({ state, alerts, currency, accounts, config, o
     : reallyAvail > 300 ? 'text-amber-300'
     : 'text-red-400';
 
-  const investGoal = config.investment_monthly_goal || 0;
+  const investGoal = state.monthlyInvestmentGoal || 0;
   const investContrib = state.monthlyInvestmentContributions;
   const investGoalPct = investGoal > 0 ? Math.min(100, (investContrib / investGoal) * 100) : 0;
   const investGoalMet = investGoal > 0 && investContrib >= investGoal;

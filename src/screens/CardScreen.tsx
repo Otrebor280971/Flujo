@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { FinancialState } from '../lib/engine';
 import type { Currency, UserAccount } from '../lib/db';
@@ -7,20 +8,31 @@ import {
   TrendingDown,
   Shield,
   Calendar,
+  Wallet,
 } from 'lucide-react';
 
 interface Props {
   state: FinancialState | null;
   currency: Currency;
   accounts: UserAccount[];
+  onPayCard: (payment: {
+    account: string;
+    destination: string;
+    amount: number;
+    note: string;
+    date: string;
+  }) => void;
 }
 
 export default function CardScreen({
   state,
   currency,
   accounts,
+  onPayCard,
 }: Props) {
   const { t } = useTranslation();
+  const [payingCardId, setPayingCardId] =
+    useState<string | null>(null);
 
   if (!state) return null;
 
@@ -46,6 +58,10 @@ export default function CardScreen({
     (acc) => acc.type === 'credit'
   );
 
+  const payingCard = state.creditCards.find(
+    (card) => card.id === payingCardId
+  );
+
   return (
     <div className="space-y-4 pb-4">
       {creditAccounts.map((card) => {
@@ -58,6 +74,10 @@ export default function CardScreen({
         const cardState = state.creditCards.find(c => c.id === card.id);
         const daysUntilCutoff = cardState?.daysUntilCutoff ?? 0;
         const daysUntilPayment = cardState?.daysUntilPayment ?? 0;
+        const statementRemaining = cardState?.statementRemaining ?? 0;
+        const openCycleBalance = cardState?.openCycleBalance ?? 0;
+        const minimumPayment = cardState?.minimumPayment ?? 0;
+        const estimatedInterest = cardState?.estimatedMonthlyInterest ?? 0;
 
         return (
           <div
@@ -134,6 +154,30 @@ export default function CardScreen({
             {/* Details */}
             <div className="grid grid-cols-2 gap-3">
               <DetailCard
+                icon={<Calendar size={16} />}
+                label={t('cardScreen.statementDue')}
+                value={formatMoney(
+                  statementRemaining,
+                  currency
+                )}
+                valueColor={
+                  statementRemaining > 0
+                    ? 'text-amber-300'
+                    : 'text-emerald-400'
+                }
+              />
+
+              <DetailCard
+                icon={<Wallet size={16} />}
+                label={t('cardScreen.openCycle')}
+                value={formatMoney(
+                  openCycleBalance,
+                  currency
+                )}
+                valueColor="text-zinc-200"
+              />
+
+              <DetailCard
                 icon={<CreditCard size={16} />}
                 label={t('cardScreen.totalLimit')}
                 value={formatMoney(limit, currency)}
@@ -172,9 +216,49 @@ export default function CardScreen({
                 }
               />
             </div>
+
+            {(minimumPayment > 0 || estimatedInterest > 0) && (
+              <div className="rounded-xl bg-zinc-900/60 border border-white/5 p-3 grid grid-cols-2 gap-3">
+                <DetailInline
+                  label={t('cardScreen.minimumPayment')}
+                  value={formatMoney(
+                    minimumPayment,
+                    currency
+                  )}
+                />
+                <DetailInline
+                  label={t('cardScreen.estimatedInterest')}
+                  value={formatMoney(
+                    estimatedInterest,
+                    currency
+                  )}
+                />
+              </div>
+            )}
+
+            <button
+              onClick={() => setPayingCardId(card.id)}
+              disabled={debt <= 0}
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-semibold rounded-xl py-3 transition-colors"
+            >
+              {t('cardScreen.payCard')}
+            </button>
           </div>
         );
       })}
+
+      {payingCard && (
+        <PayCardModal
+          card={payingCard}
+          accounts={accounts}
+          currency={currency}
+          onClose={() => setPayingCardId(null)}
+          onSubmit={(payment) => {
+            onPayCard(payment);
+            setPayingCardId(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -205,4 +289,178 @@ function DetailCard({
       </p>
     </div>
   );
+}
+
+function DetailInline({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div>
+      <p className="text-xs text-zinc-500">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-zinc-200">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function PayCardModal({
+  card,
+  accounts,
+  currency,
+  onClose,
+  onSubmit,
+}: {
+  card: FinancialState['creditCards'][number];
+  accounts: UserAccount[];
+  currency: Currency;
+  onClose: () => void;
+  onSubmit: (payment: {
+    account: string;
+    destination: string;
+    amount: number;
+    note: string;
+    date: string;
+  }) => void;
+}) {
+  const { t } = useTranslation();
+  const fundingAccounts = accounts.filter(
+    (account) => account.type !== 'credit'
+  );
+  const today = getLocalToday();
+  const [sourceAccount, setSourceAccount] =
+    useState(fundingAccounts[0]?.id || '');
+  const [amount, setAmount] = useState(
+    String(card.statementRemaining || card.debt)
+  );
+
+  const setPreset = (value: number) => {
+    setAmount(value > 0 ? String(value) : '');
+  };
+
+  const numericAmount = Number(amount);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-lg bg-zinc-950 border-t border-white/10 rounded-t-3xl p-6 pb-8 space-y-4">
+        <div>
+          <p className="text-xs text-zinc-500">
+            {card.name}
+          </p>
+          <h2 className="text-lg font-semibold text-zinc-100">
+            {t('cardScreen.payCard')}
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() =>
+              setPreset(card.statementRemaining)
+            }
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-left"
+          >
+            <p className="text-xs text-zinc-500">
+              {t('cardScreen.statementBalance')}
+            </p>
+            <p className="text-sm font-semibold text-zinc-100">
+              {formatMoney(
+                card.statementRemaining,
+                currency
+              )}
+            </p>
+          </button>
+          <button
+            onClick={() => setPreset(card.debt)}
+            className="rounded-xl border border-zinc-800 bg-zinc-900 p-3 text-left"
+          >
+            <p className="text-xs text-zinc-500">
+              {t('cardScreen.totalDebt')}
+            </p>
+            <p className="text-sm font-semibold text-zinc-100">
+              {formatMoney(card.debt, currency)}
+            </p>
+          </button>
+        </div>
+
+        <div>
+          <label className="text-xs text-zinc-500 mb-1 block">
+            {t('cardScreen.customAmount')}
+          </label>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-2xl font-semibold text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-emerald-500/50 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-zinc-500 mb-1 block">
+            {t('cardScreen.payFrom')}
+          </label>
+          <select
+            value={sourceAccount}
+            onChange={(e) =>
+              setSourceAccount(e.target.value)
+            }
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/50"
+          >
+            {fundingAccounts.map((account) => (
+              <option
+                key={account.id}
+                value={account.id}
+              >
+                {account.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={() =>
+            onSubmit({
+              account: sourceAccount,
+              destination: card.id,
+              amount: numericAmount,
+              note: t('cardScreen.paymentNote', {
+                name: card.name,
+              }),
+              date: today,
+            })
+          }
+          disabled={
+            !sourceAccount ||
+            !numericAmount ||
+            numericAmount <= 0
+          }
+          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white font-semibold rounded-xl py-3 transition-colors"
+        >
+          {t('cardScreen.confirmPayment')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function getLocalToday() {
+  const now = new Date();
+  return new Date(
+    now.getTime() -
+      now.getTimezoneOffset() * 60000
+  )
+    .toISOString()
+    .split('T')[0];
 }

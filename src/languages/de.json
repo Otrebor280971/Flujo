@@ -131,7 +131,18 @@
     "totalLimit": "Gesamtes Limit",
     "available": "Verfügbar",
     "daysToCutoff": "Tage bis Abrechnung",
-    "daysToPayment": "Tage bis Zahlung"
+    "daysToPayment": "Tage bis Zahlung",
+    "statementDue": "Abrechnung faellig",
+    "openCycle": "Offener Zyklus",
+    "minimumPayment": "Mindestzahlung",
+    "estimatedInterest": "Geschaetzte Zinsen",
+    "payCard": "Karte bezahlen",
+    "statementBalance": "Abrechnungssaldo",
+    "totalDebt": "Gesamtschuld",
+    "customAmount": "Eigener Betrag",
+    "payFrom": "Bezahlen von",
+    "confirmPayment": "Zahlung bestaetigen",
+    "paymentNote": "Zahlung an {{name}}"
   },
   "investment": {
     "empty": "Keine Investitionen registriert",
@@ -188,6 +199,8 @@
     "creditLimit": "Limit",
     "creditPaymentDay": "Zahlungstag",
     "creditCutoffDay": "Abrechnungstag",
+    "creditAnnualInterest": "Jahreszins (%)",
+    "creditMinimumPayment": "Mindestzahlung (%)",
     "recurringName": "Name",
     "recurringDay": "Tag",
     "recurringAmount": "Betrag",

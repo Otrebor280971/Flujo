@@ -131,7 +131,18 @@
     "totalLimit": "Total limit",
     "available": "Available",
     "daysToCutoff": "Days to cutoff",
-    "daysToPayment": "Days to payment"
+    "daysToPayment": "Days to payment",
+    "statementDue": "Statement due",
+    "openCycle": "Open cycle",
+    "minimumPayment": "Minimum payment",
+    "estimatedInterest": "Estimated interest",
+    "payCard": "Pay card",
+    "statementBalance": "Statement balance",
+    "totalDebt": "Total debt",
+    "customAmount": "Custom amount",
+    "payFrom": "Pay from",
+    "confirmPayment": "Confirm payment",
+    "paymentNote": "Payment to {{name}}"
   },
   "investment": {
     "empty": "No registered investments",
@@ -188,6 +199,8 @@
     "creditLimit": "Limit",
     "creditPaymentDay": "Payment day",
     "creditCutoffDay": "Cutoff day",
+    "creditAnnualInterest": "Annual interest (%)",
+    "creditMinimumPayment": "Minimum payment (%)",
     "recurringName": "Name",
     "recurringDay": "Day",
     "recurringAmount": "Amount",

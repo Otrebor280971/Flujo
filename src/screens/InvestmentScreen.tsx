@@ -29,7 +29,13 @@ export default function InvestmentScreen({
 
   if (!state) return null;
 
-  if (state.investment <= 0) {
+  const hasInvestmentAccount =
+    config.userAccounts.some(
+      (account) =>
+        account.type === 'investment'
+    );
+
+  if (!hasInvestmentAccount) {
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-6">
         <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
@@ -63,10 +69,14 @@ export default function InvestmentScreen({
   );
 
   const yieldRate =
-    config.investment_annual_yield;
+    state.investment > 0
+      ? (state.investmentYield /
+          state.investment) *
+        100
+      : getConfiguredInvestmentYield(config);
 
   const goal =
-    config.investment_monthly_goal || 0;
+    state.monthlyInvestmentGoal || 0;
 
   const contributed =
     state.monthlyInvestmentContributions;
@@ -470,5 +480,40 @@ export default function InvestmentScreen({
         </div>
       </div>
     </div>
+  );
+}
+
+function getConfiguredInvestmentYield(
+  config: AppConfig
+) {
+  const investmentAccounts =
+    config.userAccounts.filter(
+      (account) =>
+        account.type === 'investment'
+    );
+
+  const configuredRates =
+    investmentAccounts
+      .map(
+        (account) =>
+          account.investmentConfig
+            ?.annual_yield
+      )
+      .filter(
+        (rate): rate is number =>
+          rate !== undefined
+      );
+
+  if (configuredRates.length === 0) {
+    return (
+      config.investment_annual_yield || 0
+    );
+  }
+
+  return (
+    configuredRates.reduce(
+      (sum, rate) => sum + rate,
+      0
+    ) / configuredRates.length
   );
 }

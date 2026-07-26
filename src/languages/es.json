@@ -131,7 +131,18 @@
     "totalLimit": "Límite total",
     "available": "Disponible",
     "daysToCutoff": "Días para corte",
-    "daysToPayment": "Días para pago"
+    "daysToPayment": "Días para pago",
+    "statementDue": "Saldo a pagar",
+    "openCycle": "Ciclo abierto",
+    "minimumPayment": "Pago mínimo",
+    "estimatedInterest": "Interés estimado",
+    "payCard": "Pagar tarjeta",
+    "statementBalance": "Saldo del corte",
+    "totalDebt": "Deuda total",
+    "customAmount": "Monto personalizado",
+    "payFrom": "Pagar desde",
+    "confirmPayment": "Confirmar pago",
+    "paymentNote": "Pago a {{name}}"
   },
   "investment": {
     "empty": "Sin inversiones registradas",
@@ -188,6 +199,8 @@
     "creditLimit": "Límite",
     "creditPaymentDay": "Día pago",
     "creditCutoffDay": "Día corte",
+    "creditAnnualInterest": "Interés anual (%)",
+    "creditMinimumPayment": "Pago mínimo (%)",
     "recurringName": "Nombre",
     "recurringDay": "Día",
     "recurringAmount": "Cantidad",

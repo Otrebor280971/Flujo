@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppConfig, RecurringItem, Currency, UserAccount } from '../lib/db';
 import { DEFAULT_CONFIG } from '../lib/db';
@@ -28,6 +28,8 @@ export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutor
     debit_max_balance: config.debit_max_balance ?? 0,
   });
   const [saved, setSaved] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const saveTimer = useRef<number | null>(null);
 
   useEffect(() => {
     setForm({
@@ -37,15 +39,42 @@ export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutor
       investment_monthly_goal: config.investment_monthly_goal ?? 0,
       debit_max_balance: config.debit_max_balance ?? 0,
     });
+    setDirty(false);
   }, [config]);
 
   const update = <K extends keyof AppConfig>(key: K, value: AppConfig[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setDirty(true);
     setSaved(false);
   };
 
+  useEffect(() => {
+    if (!dirty) return;
+
+    if (saveTimer.current) {
+      window.clearTimeout(saveTimer.current);
+    }
+
+    saveTimer.current = window.setTimeout(() => {
+      onSave(form);
+      setDirty(false);
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 2000);
+    }, 800);
+
+    return () => {
+      if (saveTimer.current) {
+        window.clearTimeout(saveTimer.current);
+      }
+    };
+  }, [dirty, form, onSave]);
+
   const handleSave = () => {
+    if (saveTimer.current) {
+      window.clearTimeout(saveTimer.current);
+    }
     onSave(form);
+    setDirty(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -56,13 +85,15 @@ export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutor
   };
 
   const handleReset = () => {
-    setForm({
+    const resetConfig = {
       ...DEFAULT_CONFIG,
       recurring: [...(DEFAULT_CONFIG.recurring || [])],
       userAccounts: [],
       investment_monthly_goal: 0,
       debit_max_balance: 0,
-    });
+    };
+    setForm(resetConfig);
+    setDirty(true);
     setSaved(false);
   };
 
@@ -121,7 +152,6 @@ export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutor
   const accountsList = form.userAccounts || [];
 
   const CurrencyIcon = Icons.currency;
-  const InvestmentIcon = Icons.investment;
   const AccountsIcon = Icons.accounts;
   const IncomeIcon = Icons.fixincome;
   const ExpenseIcon = Icons.fixexpense;
@@ -203,29 +233,6 @@ export default function Settings({ config, onSave, onAdjustAccounts, onOpenTutor
             </button>
           ))}
         </div>
-      </div>
-
-      {/* ── INVERSIÓN ── */}
-      <div className="rounded-2xl bg-app-elevated/90 border border-app-border p-4 space-y-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-          <InvestmentIcon size={18} />
-          {t('settings.investment')}
-        </div>
-        <Field
-          label={t('settings.annualYield')}
-          value={form.investment_annual_yield}
-          onChange={(v) => update('investment_annual_yield', v)}
-          max={100}
-          step={0.1}
-        />
-        <Field
-          label={t('settings.monthlyGoal')}
-          value={form.investment_monthly_goal}
-          onChange={(v) => update('investment_monthly_goal', v)}
-          currency={form.currency}
-          step={100}
-          hint={t('settings.monthlyGoalHint')}
-        />
       </div>
 
       {/* ── EXCEDENTE ── */}
@@ -381,7 +388,7 @@ function AccountRow({ account, onChange, onRemove, canRemove }: {
         </select>
 
         {account.type === 'credit' && (
-          <div className="grid grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-2 gap-3 pt-2">
             <div className="flex flex-col gap-1">
               <label className="text-[11px] text-subtle">{t('settings.creditLimit')}</label>
               <input
@@ -433,6 +440,86 @@ function AccountRow({ account, onChange, onRemove, canRemove }: {
                 className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
               />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-subtle">{t('settings.creditAnnualInterest')}</label>
+              <input
+                type="number"
+                placeholder="0"
+                min={0}
+                step="0.1"
+                value={account.creditConfig?.annual_interest_rate || ''}
+                onChange={(e) => onChange({
+                  creditConfig: {
+                    ...account.creditConfig,
+                    annual_interest_rate: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-subtle">{t('settings.creditMinimumPayment')}</label>
+              <input
+                type="number"
+                placeholder="0"
+                min={0}
+                max={100}
+                step="0.1"
+                value={account.creditConfig?.minimum_payment_percent || ''}
+                onChange={(e) => onChange({
+                  creditConfig: {
+                    ...account.creditConfig,
+                    minimum_payment_percent: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+          </div>
+        )}
+
+        {account.type === 'investment' && (
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-subtle">{t('settings.annualYield')}</label>
+              <input
+                type="number"
+                placeholder="0"
+                min={0}
+                max={100}
+                step="0.1"
+                value={account.investmentConfig?.annual_yield || ''}
+                onChange={(e) => onChange({
+                  investmentConfig: {
+                    ...account.investmentConfig,
+                    annual_yield: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                    monthly_goal: account.investmentConfig?.monthly_goal,
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[11px] text-subtle">{t('settings.monthlyGoal')}</label>
+              <input
+                type="number"
+                placeholder="0"
+                min={0}
+                step="100"
+                value={account.investmentConfig?.monthly_goal || ''}
+                onChange={(e) => onChange({
+                  investmentConfig: {
+                    ...account.investmentConfig,
+                    annual_yield: account.investmentConfig?.annual_yield,
+                    monthly_goal: e.target.value === '' ? undefined : parseFloat(e.target.value),
+                  },
+                })}
+                className="w-full bg-app-bg border border-app-border rounded-lg px-2 py-1.5 text-xs text-zinc-300 placeholder:text-subtle focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+            <p className="col-span-2 text-[11px] text-subtle">
+              {t('settings.monthlyGoalHint')}
+            </p>
           </div>
         )}
       </div>
